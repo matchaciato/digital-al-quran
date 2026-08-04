@@ -6,7 +6,7 @@
       </NuxtLink>
 
       <nav class="flex items-center gap-x-3.5">
-        <NuxtLink to="/beranda">Beranda</NuxtLink>
+        <NuxtLink to="/">Beranda</NuxtLink>
         <NuxtLink to="/tentang">Tentang</NuxtLink>
         <NuxtLink to="/beranda">Beranda</NuxtLink>
       </nav>
