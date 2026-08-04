@@ -35,7 +35,7 @@
           </header>
           <div v-html="item.text"></div>
           <div v-if="item.translations && item.translations.length > 0">
-            <p v-html="item.translations[0].text"></p>
+            <p>{{ stripHtmlTags(item.translations[0].text) }}</p>
           </div>
         </li>
       </ul>
@@ -45,6 +45,7 @@
 
 <script setup lang="ts">
 import { useQuranApi } from '~/composables/useQuranApi';
+import { stripHtmlTags } from '~/utils/quranValidation';
 import type { SearchResponse } from '~/types/quran';
 
 const route = useRoute();

@@ -28,3 +28,12 @@ export function sanitizeSearchQuery(query: string): string {
   if (typeof query !== 'string') return '';
   return query.trim().slice(0, 100);
 }
+
+export function stripHtmlTags(str: string): string {
+  if (typeof str !== 'string') return '';
+  return str
+    .replace(/<sup[^>]*>.*?<\/sup>/gi, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}

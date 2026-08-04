@@ -41,6 +41,7 @@ import { useSettingsStore } from '~/stores/useSettingsStore';
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import { useBookmarkStore } from '~/stores/useBookmarkStore';
+import { stripHtmlTags } from '~/utils/quranValidation';
 import type { Verse } from '~/types/quran';
 
 const props = defineProps<{
@@ -64,15 +65,16 @@ const isBookmarked = computed(() => bookmarkStore.isBookmarked(props.verse.verse
 
 const translationText = computed(() => {
   if (!props.verse.translations || props.verse.translations.length === 0) return '';
-  return props.verse.translations[0].text;
+  return stripHtmlTags(props.verse.translations[0].text);
 });
 
 const latinText = computed(() => {
   if (!props.verse.words) return '';
-  return props.verse.words
+  const rawText = props.verse.words
     .map(w => w.transliteration?.text || w.text_indonesian || '')
     .filter(Boolean)
     .join(' ');
+  return stripHtmlTags(rawText);
 });
 
 const handlePlay = () => {
