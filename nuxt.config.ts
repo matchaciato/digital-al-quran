@@ -44,7 +44,6 @@ export default defineNuxtConfig({
     },
     workbox: {
       navigateFallback: '/',
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/api\.quran\.com\/api\/v4\/.*/i,
@@ -78,7 +77,8 @@ export default defineNuxtConfig({
     },
     devOptions: {
       enabled: true,
-      type: 'module'
+      type: 'module',
+      suppressWarnings: true
     }
   },
 
