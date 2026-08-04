@@ -1,16 +1,6 @@
 <template>
   <div>
-    <header>
-      <nav>
-        <h1><NuxtLink to="/">Al-Quran Digital</NuxtLink></h1>
-        <ul>
-          <li><NuxtLink to="/">Beranda</NuxtLink></li>
-          <li><NuxtLink to="/bookmark">Penanda Buku</NuxtLink></li>
-          <li><NuxtLink to="/search">Pencarian</NuxtLink></li>
-        </ul>
-        <button type="button" @click="isSettingsOpen = true">Pengaturan</button>
-      </nav>
-    </header>
+    <AppHeader />
 
     <main>
       <slot />
@@ -23,5 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import AppHeader from '~/components/AppHeader.vue';
+
 const isSettingsOpen = ref(false);
 </script>
