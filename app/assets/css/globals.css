@@ -1,5 +1,26 @@
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap');
+@font-face {
+  font-family: 'Noto Sans';
+  src: url('~/assets/fonts/NotoSans-Italic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Noto Naskh Arabic';
+  src: url('~/assets/fonts/NotoNaskhArabic.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -7,6 +28,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: 'Noto Sans', sans-serif;
+  --font-arabic: 'Noto Naskh Arabic', serif;
   --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -117,6 +140,10 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    font-family: 'Noto Sans', sans-serif;
+  }
+  [dir="rtl"], [lang="ar"] {
+    font-family: 'Noto Naskh Arabic', serif;
   }
   body {
     @apply bg-background text-foreground;
