@@ -1,10 +1,15 @@
 <template>
-  <section>
+  <section class="w-full max-w-7xl mx-auto px-4 py-10 sm:px-6 lg:px-8">
     <h2>Al-Quran Digital</h2>
 
     <div v-if="bookmarkStore.lastRead">
-      <p>Terakhir Dibaca: {{ bookmarkStore.lastRead.surahName }} (Ayat {{ bookmarkStore.lastRead.verseKey }})</p>
-      <NuxtLink :to="`/surah/${bookmarkStore.lastRead.chapterId}#verse-${bookmarkStore.lastRead.verseKey}`">
+      <p>
+        Terakhir Dibaca: {{ bookmarkStore.lastRead.surahName }} (Ayat
+        {{ bookmarkStore.lastRead.verseKey }})
+      </p>
+      <NuxtLink
+        :to="`/surah/${bookmarkStore.lastRead.chapterId}#verse-${bookmarkStore.lastRead.verseKey}`"
+      >
         Lanjutkan Membaca
       </NuxtLink>
     </div>
@@ -18,8 +23,20 @@
     </div>
 
     <nav>
-      <button type="button" :disabled="activeTab === 'surah'" @click="activeTab = 'surah'">Daftar Surah</button>
-      <button type="button" :disabled="activeTab === 'juz'" @click="activeTab = 'juz'">Daftar Juz</button>
+      <button
+        type="button"
+        :disabled="activeTab === 'surah'"
+        @click="activeTab = 'surah'"
+      >
+        Daftar Surah
+      </button>
+      <button
+        type="button"
+        :disabled="activeTab === 'juz'"
+        @click="activeTab = 'juz'"
+      >
+        Daftar Juz
+      </button>
     </nav>
 
     <div v-if="pending">
@@ -31,13 +48,31 @@
     </div>
 
     <section v-else-if="activeTab === 'surah'">
-      <ul>
-        <li v-for="surah in filteredChapters" :key="surah.id">
+      <ul class="grid gap-x-8 gap-y-5 sm:grid-cols-2 lg:grid-cols-3">
+        <li
+          v-for="surah in filteredChapters"
+          :key="surah.id"
+          :tabindex="surah.id"
+          class="group p-6 rounded-xl border border-border hover:border-emerald-400 shadow-sm"
+        >
           <NuxtLink :to="`/surah/${surah.id}`">
-            <span>{{ surah.id }}.</span>
-            <strong>{{ surah.name_simple }}</strong>
-            <span>({{ surah.name_arabic }})</span>
-            <p>{{ surah.translated_name.name }} • {{ surah.revelation_place }} • {{ surah.verses_count }} Ayat</p>
+            <div class="flex justify-between">
+              <div class="flex flex-col">
+                <h3 class="text-xl font-semibold">{{ surah.name_simple }}</h3>
+                <p class="text-sm text-muted-foreground">
+                  {{ surah.translated_name.name }}
+                </p>
+              </div>
+              <p class="text-emerald-500 text-xs">{{ surah.id }}</p>
+            </div>
+            <p class="text-4xl font-serif text-end my-5">
+              {{ surah.name_arabic }}
+            </p>
+            <div class="flex items-center gap-x-2 text-sm text-muted-foreground">
+              <p class="capitalize">{{ surah.revelation_place }}</p>
+              <span class="text-xs">&bull;</span>
+              <p>{{ surah.verses_count }} Ayat</p>
+            </div>
           </NuxtLink>
         </li>
       </ul>
@@ -56,19 +91,22 @@
 </template>
 
 <script setup lang="ts">
-import { useQuranApi } from '~/composables/useQuranApi';
-import { useBookmarkStore } from '~/stores/useBookmarkStore';
-import type { Chapter } from '~/types/quran';
+import { useQuranApi } from "~/composables/useQuranApi";
+import { useBookmarkStore } from "~/stores/useBookmarkStore";
+import type { Chapter } from "~/types/quran";
 
 const quranApi = useQuranApi();
 const bookmarkStore = useBookmarkStore();
 
-const searchQuery = ref('');
-const activeTab = ref<'surah' | 'juz'>('surah');
+const searchQuery = ref("");
+const activeTab = ref<"surah" | "juz">("surah");
 
-const { data, pending, error } = await useAsyncData<{ chapters: Chapter[] }>('chapters-list', () => {
-  return quranApi.getChapters();
-});
+const { data, pending, error } = await useAsyncData<{ chapters: Chapter[] }>(
+  "chapters-list",
+  () => {
+    return quranApi.getChapters();
+  },
+);
 
 const filteredChapters = computed(() => {
   if (!data.value?.chapters) return [];
