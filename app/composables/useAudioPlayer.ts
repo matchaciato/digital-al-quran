@@ -1,168 +1,139 @@
-import { usePlayerStore } from '~/stores/player';
-import { useScrollSync } from '~/composables/useScrollSync';
-import { useQuranApi } from '~/composables/useQuranApi';
+import { useAudioStore } from '~/stores/useAudioStore';
 import { QURAN_API } from '~/constants/quran';
 
-let globalAudio: HTMLAudioElement | null = null;
+let audioElement: HTMLAudioElement | null = null;
 
 export function useAudioPlayer() {
-  const playerStore = usePlayerStore();
-  const { scrollToVerse } = useScrollSync();
-  const quranApi = useQuranApi();
+  const audioStore = useAudioStore();
 
-  const initAudio = (): HTMLAudioElement => {
-    if (import.meta.server) {
-      return {} as HTMLAudioElement;
+  const getAudioElement = (): HTMLAudioElement => {
+    if (!audioElement && import.meta.client) {
+      audioElement = new Audio();
+      setupAudioListeners(audioElement);
     }
-    if (!globalAudio) {
-      globalAudio = new Audio();
-      globalAudio.preload = 'metadata';
-
-      globalAudio.addEventListener('timeupdate', () => {
-        if (!globalAudio) return;
-        playerStore.updateProgress(globalAudio.currentTime, globalAudio.duration || 0);
-      });
-
-      globalAudio.addEventListener('ended', () => {
-        if (playerStore.isLooping && globalAudio) {
-          globalAudio.currentTime = 0;
-          globalAudio.play().catch(() => {
-            playerStore.pause();
-          });
-        } else {
-          playerStore.pause();
-        }
-      });
-
-      globalAudio.addEventListener('error', () => {
-        playerStore.pause();
-      });
-    }
-
-    return globalAudio;
+    return audioElement!;
   };
 
-  const playVerse = async (audioUrl: string, verseKey: string, chapterId: number) => {
-    if (import.meta.server) return;
-    const audio = initAudio();
-    if (!audioUrl) return;
-
-    let fullUrl = audioUrl;
-    if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
-      fullUrl = `${QURAN_API.AUDIO_BASE_URL}${audioUrl.startsWith('/') ? audioUrl.slice(1) : audioUrl}`;
-    }
-
-    playerStore.setAudioState({
-      chapterId,
-      verseKey,
-      url: fullUrl,
-      timings: []
+  const setupAudioListeners = (audio: HTMLAudioElement) => {
+    audio.addEventListener('timeupdate', () => {
+      if (!audio) return;
+      audioStore.updateTime(audio.currentTime, audio.duration || 0);
+      syncActiveVerse(audio.currentTime);
     });
 
-    audio.src = fullUrl;
-    audio.currentTime = 0;
+    audio.addEventListener('play', () => {
+      audioStore.setPlaybackStatus(true);
+    });
 
-    try {
-      await audio.play();
-      playerStore.play();
-      scrollToVerse(verseKey);
-    } catch {
-      playerStore.pause();
+    audio.addEventListener('pause', () => {
+      audioStore.setPlaybackStatus(false);
+    });
+
+    audio.addEventListener('ended', () => {
+      audioStore.setPlaybackStatus(false);
+      handleAudioEnded();
+    });
+
+    audio.addEventListener('error', (e) => {
+      audioStore.setPlaybackStatus(false);
+    });
+  };
+
+  const syncActiveVerse = (currentTimeMs: number) => {
+    const timeInMs = currentTimeMs * 1000;
+    const timings = audioStore.audioFile?.verse_timings;
+
+    if (timings && timings.length > 0) {
+      const activeTiming = timings.find(
+        (t) => timeInMs >= t.timestamp_from && timeInMs <= t.timestamp_to
+      );
+      if (activeTiming && activeTiming.verse_key !== audioStore.currentVerseKey) {
+        audioStore.setActiveVerseKey(activeTiming.verse_key);
+        scrollToVerse(activeTiming.verse_key);
+      }
     }
   };
 
-  const playChapter = async (chapterId: number, reciterId?: number) => {
-    if (import.meta.server) return;
+  const scrollToVerse = (verseKey: string) => {
+    if (!import.meta.client) return;
+    const element = document.getElementById(`verse-${verseKey}`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
-    const activeReciterId = reciterId || playerStore.currentReciterId;
+  const playVerse = async (audioUrl: string, verseKey: string) => {
+    const audio = getAudioElement();
+    const formattedUrl = audioUrl.startsWith('http') ? audioUrl : `${QURAN_API.AUDIO_BASE_URL}${audioUrl}`;
+
+    if (audioStore.audioUrl !== formattedUrl) {
+      audio.src = formattedUrl;
+      audioStore.setAudioSource(formattedUrl, Number(verseKey.split(':')[0]));
+    }
+
+    audioStore.setActiveVerseKey(verseKey);
     try {
-      const response = await quranApi.getChapterRecitation(activeReciterId, chapterId);
-      const audioFile = response?.audio_file;
-      if (!audioFile || !audioFile.audio_url) return;
-
-      const timings = (audioFile.verse_timings || []).map(vt => ({
-        verseKey: vt.verse_key,
-        timestampFrom: vt.timestamp_from,
-        timestampTo: vt.timestamp_to,
-        duration: vt.duration
-      }));
-
-      const audio = initAudio();
-      playerStore.setAudioState({
-        chapterId,
-        reciterId: activeReciterId,
-        url: audioFile.audio_url,
-        timings
-      });
-
-      audio.src = audioFile.audio_url;
-      audio.currentTime = 0;
-
       await audio.play();
-      playerStore.play();
-
-      const firstTiming = timings[0];
-      if (firstTiming?.verseKey) {
-        scrollToVerse(firstTiming.verseKey);
-      }
-    } catch {
-      playerStore.pause();
+    } catch (err) {
+      audioStore.setPlaybackStatus(false);
     }
   };
 
   const togglePlayPause = async () => {
-    if (import.meta.server) return;
-    const audio = initAudio();
+    const audio = getAudioElement();
+    if (!audio.src) return;
 
-    if (playerStore.isPlaying) {
+    if (audioStore.isPlaying) {
       audio.pause();
-      playerStore.pause();
-    } else if (audio.src) {
+    } else {
       try {
         await audio.play();
-        playerStore.play();
-      } catch {
-        playerStore.pause();
+      } catch (err) {
+        audioStore.setPlaybackStatus(false);
       }
     }
   };
 
   const seekTo = (seconds: number) => {
-    if (import.meta.server) return;
-    const audio = initAudio();
-    const valid = Math.max(0, Math.min(seconds, audio.duration || 0));
-    audio.currentTime = valid;
-    playerStore.updateProgress(valid, audio.duration || 0);
+    const audio = getAudioElement();
+    if (audio && !isNaN(seconds)) {
+      audio.currentTime = seconds;
+      audioStore.updateTime(seconds, audio.duration || 0);
+    }
   };
 
   const setVolume = (val: number) => {
-    if (import.meta.server) return;
-    const audio = initAudio();
-    const clamped = Math.max(0, Math.min(1, val));
-    audio.volume = clamped;
-    playerStore.setVolume(clamped);
+    const audio = getAudioElement();
+    audioStore.setVolume(val);
+    if (audio) {
+      audio.volume = audioStore.volume;
+    }
   };
 
   const setPlaybackRate = (rate: number) => {
-    if (import.meta.server) return;
-    const audio = initAudio();
-    const clamped = Math.max(0.5, Math.min(2, rate));
-    audio.playbackRate = clamped;
-    playerStore.setPlaybackRate(clamped);
+    const audio = getAudioElement();
+    audioStore.setPlaybackRate(rate);
+    if (audio) {
+      audio.playbackRate = audioStore.playbackRate;
+    }
   };
 
-  watch(() => playerStore.currentVerseKey, (newVerseKey) => {
-    if (newVerseKey && playerStore.isPlaying) {
-      scrollToVerse(newVerseKey);
+  const handleAudioEnded = () => {
+    if (audioStore.isLooping && audioStore.currentVerseKey) {
+      const audio = getAudioElement();
+      audio.currentTime = 0;
+      audio.play();
+    } else {
+      audioStore.setActiveVerseKey(null);
     }
-  });
+  };
 
   return {
     playVerse,
-    playChapter,
     togglePlayPause,
     seekTo,
     setVolume,
-    setPlaybackRate
+    setPlaybackRate,
+    scrollToVerse
   };
 }
