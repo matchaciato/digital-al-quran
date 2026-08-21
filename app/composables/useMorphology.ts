@@ -1,6 +1,7 @@
 import type { WordMorphology } from '~/types/morphology';
 import type { Word } from '~/types/quran';
 import { stripHtmlTags } from '~/utils/quranValidation';
+import { resolveWordAudioUrl } from '~/utils/audioUrlResolver';
 
 const ROOTS_DICTIONARY: Record<string, Partial<WordMorphology>> = {
   'اسم': {
@@ -203,11 +204,10 @@ export function useMorphology() {
 
   const playWordAudio = (audioUrl: string | null) => {
     if (!audioUrl) return;
-    const fullUrl = audioUrl.startsWith('http')
-      ? audioUrl
-      : `https://audio.qurancdn.com/${audioUrl}`;
+    const fullUrl = resolveWordAudioUrl(audioUrl);
+    if (!fullUrl) return;
     const audio = new Audio(fullUrl);
-    audio.play().catch(e => console.error('Audio word playback failed:', e));
+    audio.play().catch(e => console.warn('Audio word playback prevented or failed:', e));
   };
 
   return {

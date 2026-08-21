@@ -1,5 +1,5 @@
 import { useAudioStore } from '~/stores/useAudioStore';
-import { QURAN_API } from '~/constants/quran';
+import { resolveVerseAudioUrl } from '~/utils/audioUrlResolver';
 
 let audioElement: HTMLAudioElement | null = null;
 
@@ -35,6 +35,7 @@ export function useAudioPlayer() {
     });
 
     audio.addEventListener('error', (e) => {
+      console.warn('Audio playback error encountered on current source:', e);
       audioStore.setPlaybackStatus(false);
     });
   };
@@ -62,20 +63,41 @@ export function useAudioPlayer() {
     }
   };
 
-  const playVerse = async (audioUrl: string, verseKey: string) => {
+  const playVerse = async (audioUrl: string | undefined | null, verseKey: string) => {
     const audio = getAudioElement();
-    const formattedUrl = audioUrl.startsWith('http') ? audioUrl : `${QURAN_API.AUDIO_BASE_URL}${audioUrl}`;
+    const formattedUrl = resolveVerseAudioUrl(audioUrl, verseKey);
 
-    if (audioStore.audioUrl !== formattedUrl) {
+    if (!formattedUrl) {
+      console.warn('Cannot resolve audio URL for verse', verseKey);
+      return;
+    }
+
+    if (audioStore.audioUrl !== formattedUrl || audio.src !== formattedUrl) {
       audio.src = formattedUrl;
+      audio.load();
       audioStore.setAudioSource(formattedUrl, Number(verseKey.split(':')[0]));
     }
 
     audioStore.setActiveVerseKey(verseKey);
     try {
       await audio.play();
+      audioStore.setPlaybackStatus(true);
     } catch (err) {
-      audioStore.setPlaybackStatus(false);
+      console.warn('Autoplay prevented or audio source failed, attempting fallback...', err);
+      if (verseKey.includes(':')) {
+        const [s, a] = verseKey.split(':');
+        const fallbackUrl = `https://verses.quran.com/Alafasy/mp3/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`;
+        if (audio.src !== fallbackUrl) {
+          audio.src = fallbackUrl;
+          audio.load();
+          try {
+            await audio.play();
+            audioStore.setPlaybackStatus(true);
+          } catch (e) {
+            audioStore.setPlaybackStatus(false);
+          }
+        }
+      }
     }
   };
 
@@ -88,6 +110,7 @@ export function useAudioPlayer() {
     } else {
       try {
         await audio.play();
+        audioStore.setPlaybackStatus(true);
       } catch (err) {
         audioStore.setPlaybackStatus(false);
       }
@@ -122,7 +145,7 @@ export function useAudioPlayer() {
     if (audioStore.isLooping && audioStore.currentVerseKey) {
       const audio = getAudioElement();
       audio.currentTime = 0;
-      audio.play();
+      audio.play().catch(e => console.warn(e));
     } else {
       audioStore.setActiveVerseKey(null);
     }
