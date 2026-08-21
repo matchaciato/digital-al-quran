@@ -1,19 +1,23 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-background text-foreground flex flex-col">
     <AppHeader />
 
-    <main>
+    <main class="flex-1 w-full">
       <slot />
     </main>
 
     <QuranAudioPlayerBar />
 
-    <QuranSettingsDrawer :is-open="isSettingsOpen" @close="isSettingsOpen = false" />
+    <QuranSettingsDrawer
+      :is-open="settings.isSettingsOpen"
+      @close="settings.closeSettings()"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import AppHeader from '~/components/AppHeader.vue';
+import { useSettingsStore } from '~/stores/useSettingsStore';
 
-const isSettingsOpen = ref(false);
+const settings = useSettingsStore();
 </script>

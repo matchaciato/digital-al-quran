@@ -13,6 +13,17 @@ export const useSettingsStore = defineStore('settings', () => {
   const selectedTafsirId = useLocalStorage<number>('quran_tafsir_id', 168);
   const readingMode = useLocalStorage<ReadingMode>('quran_reading_mode', 'verse');
   const isDarkMode = useLocalStorage<boolean>('quran_dark_mode', false);
+  const isSettingsOpen = ref<boolean>(false);
+
+  if (import.meta.client) {
+    watch(isDarkMode, (dark) => {
+      if (dark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }, { immediate: true });
+  }
 
   const setArabicFontSize = (size: number) => {
     arabicFontSize.value = Math.min(50, Math.max(16, size));
@@ -50,6 +61,14 @@ export const useSettingsStore = defineStore('settings', () => {
     isDarkMode.value = !isDarkMode.value;
   };
 
+  const openSettings = () => {
+    isSettingsOpen.value = true;
+  };
+
+  const closeSettings = () => {
+    isSettingsOpen.value = false;
+  };
+
   return {
     arabicFontSize,
     translationFontSize,
@@ -59,6 +78,7 @@ export const useSettingsStore = defineStore('settings', () => {
     selectedTafsirId,
     readingMode,
     isDarkMode,
+    isSettingsOpen,
     setArabicFontSize,
     setTranslationFontSize,
     toggleLatin,
@@ -66,6 +86,8 @@ export const useSettingsStore = defineStore('settings', () => {
     setReciterId,
     setTafsirId,
     setReadingMode,
-    toggleDarkMode
+    toggleDarkMode,
+    openSettings,
+    closeSettings
   };
 });
