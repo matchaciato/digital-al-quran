@@ -73,23 +73,37 @@
     </header>
 
     <section class="space-y-6 pt-6">
-      <p
-        class="quran-arabic text-right text-foreground select-text"
+      <!-- Arabic Text (with interactive word tokens if available) -->
+      <div
+        class="quran-arabic text-right text-foreground select-text leading-[2.4]"
         :style="{ fontSize: `${settings.arabicFontSize}px` }"
         dir="rtl"
       >
-        {{ verse.text_uthmani }}
-        <span class="ayah-end-glyph text-primary/80 font-normal select-none">
+        <template v-if="verse.words && verse.words.length > 0">
+          <QuranVerseWordToken
+            v-for="word in verse.words"
+            :key="word.id"
+            :word="word"
+            :verse-key="verse.verse_key"
+            @inspect="w => $emit('inspectWord', w, verse.verse_key)"
+          />
+        </template>
+        <template v-else>
+          {{ verse.text_uthmani }}
+        </template>
+        <span class="ayah-end-glyph text-primary/80 font-normal select-none px-1">
           {{ formatAyahGlyph(verse.verse_number) }}
         </span>
-      </p>
+      </div>
 
+      <!-- Transliteration Latin -->
       <div v-if="settings.showLatin && latinText" class="pt-1">
         <p class="text-sm font-medium italic text-muted-foreground/90 leading-relaxed">
           {{ latinText }}
         </p>
       </div>
 
+      <!-- Translation -->
       <div v-if="settings.showTranslation && translationText" class="pt-1">
         <p
           class="text-foreground/90 leading-relaxed"
@@ -109,7 +123,7 @@ import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import { useBookmarkStore } from '~/stores/useBookmarkStore';
 import { stripHtmlTags } from '~/utils/quranValidation';
 import { formatAyahGlyph } from '~/utils/arabicFormatters';
-import type { Verse } from '~/types/quran';
+import type { Verse, Word } from '~/types/quran';
 
 const props = defineProps<{
   verse: Verse;
@@ -119,6 +133,7 @@ const props = defineProps<{
 
 defineEmits<{
   (e: 'openTafsir', verseKey: string): void;
+  (e: 'inspectWord', word: Word, verseKey: string): void;
 }>();
 
 const settings = useSettingsStore();
@@ -134,7 +149,7 @@ const isBookmarked = computed(() => bookmarkStore.isBookmarked(props.verse.verse
 
 const translationText = computed(() => {
   if (!props.verse.translations || props.verse.translations.length === 0) return '';
-  return stripHtmlTags(props.verse.translations[0]!.text);
+  return stripHtmlTags(props.verse.translations[0]?.text || '');
 });
 
 const latinText = computed(() => {

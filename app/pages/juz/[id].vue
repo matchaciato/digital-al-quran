@@ -82,6 +82,7 @@
           :surah-name="`Juz ${juzId}`"
           :chapter-id="Number(verse.verse_key.split(':')[0])"
           @open-tafsir="handleOpenTafsir"
+          @inspect-word="handleInspectWord"
         />
       </section>
 
@@ -115,12 +116,20 @@
       :verse-key="selectedTafsirVerseKey"
       @close="isTafsirOpen = false"
     />
+
+    <QuranMorphologyRootExplorerModal
+      :is-open="isRootExplorerOpen"
+      :raw-word="selectedWord"
+      :verse-key="selectedWordVerseKey"
+      @close="isRootExplorerOpen = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useQuranApi } from '~/composables/useQuranApi';
 import { useSettingsStore } from '~/stores/useSettingsStore';
+import type { Word } from '~/types/quran';
 
 const route = useRoute();
 const juzId = computed(() => Number(route.params.id) || 1);
@@ -130,6 +139,10 @@ const settings = useSettingsStore();
 
 const isTafsirOpen = ref(false);
 const selectedTafsirVerseKey = ref('');
+
+const isRootExplorerOpen = ref(false);
+const selectedWord = ref<Word | null>(null);
+const selectedWordVerseKey = ref('');
 
 const modes = [
   { id: 'verse', label: 'Ayat' },
@@ -149,5 +162,11 @@ const { data, pending, error } = await useAsyncData(
 const handleOpenTafsir = (verseKey: string) => {
   selectedTafsirVerseKey.value = verseKey;
   isTafsirOpen.value = true;
+};
+
+const handleInspectWord = (word: Word, verseKey: string) => {
+  selectedWord.value = word;
+  selectedWordVerseKey.value = verseKey;
+  isRootExplorerOpen.value = true;
 };
 </script>

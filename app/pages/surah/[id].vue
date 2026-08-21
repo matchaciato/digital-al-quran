@@ -113,6 +113,7 @@
           :surah-name="chapterData.chapter.name_simple"
           :chapter-id="chapterData.chapter.id"
           @open-tafsir="handleOpenTafsir"
+          @inspect-word="handleInspectWord"
         />
       </section>
 
@@ -147,6 +148,13 @@
       :verse-key="selectedTafsirVerseKey"
       @close="isTafsirOpen = false"
     />
+
+    <QuranMorphologyRootExplorerModal
+      :is-open="isRootExplorerOpen"
+      :raw-word="selectedWord"
+      :verse-key="selectedWordVerseKey"
+      @close="isRootExplorerOpen = false"
+    />
   </div>
 </template>
 
@@ -155,6 +163,7 @@ import { useQuranApi } from '~/composables/useQuranApi';
 import { useSettingsStore } from '~/stores/useSettingsStore';
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
+import type { Word } from '~/types/quran';
 
 const route = useRoute();
 const chapterId = computed(() => Number(route.params.id) || 1);
@@ -166,6 +175,10 @@ const audioPlayer = useAudioPlayer();
 
 const isTafsirOpen = ref(false);
 const selectedTafsirVerseKey = ref('');
+
+const isRootExplorerOpen = ref(false);
+const selectedWord = ref<Word | null>(null);
+const selectedWordVerseKey = ref('');
 
 const modes = [
   { id: 'verse', label: 'Ayat' },
@@ -215,5 +228,11 @@ const handlePlayFullSurah = async () => {
 const handleOpenTafsir = (verseKey: string) => {
   selectedTafsirVerseKey.value = verseKey;
   isTafsirOpen.value = true;
+};
+
+const handleInspectWord = (word: Word, verseKey: string) => {
+  selectedWord.value = word;
+  selectedWordVerseKey.value = verseKey;
+  isRootExplorerOpen.value = true;
 };
 </script>
