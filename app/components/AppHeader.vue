@@ -66,7 +66,8 @@ const settings = useSettingsStore();
 const navigations = [
   { name: "Surah", href: "/" },
   { name: "Juz", href: "/juz/1" },
+  { name: "Topik", href: "/topics" },
   { name: "Pencarian", href: "/search" },
-  { name: "Penanda", href: "/bookmark" },
+  { name: "Tadabbur", href: "/bookmark" },
 ];
 </script>
