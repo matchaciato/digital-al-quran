@@ -129,6 +129,7 @@
 <script setup lang="ts">
 import { useQuranApi } from '~/composables/useQuranApi';
 import { useSettingsStore } from '~/stores/useSettingsStore';
+import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import type { Word } from '~/types/quran';
 
 const route = useRoute();
@@ -136,6 +137,7 @@ const juzId = computed(() => Number(route.params.id) || 1);
 
 const quranApi = useQuranApi();
 const settings = useSettingsStore();
+const audioPlayer = useAudioPlayer();
 
 const isTafsirOpen = ref(false);
 const selectedTafsirVerseKey = ref('');
@@ -152,11 +154,14 @@ const modes = [
 ];
 
 const { data, pending, error } = await useAsyncData(
-  `juz-${juzId.value}-${settings.selectedReciterId}`,
+  () => `juz-${juzId.value}-${settings.selectedReciterId}`,
   () => quranApi.getVersesByJuz(juzId.value, {
     reciterId: settings.selectedReciterId,
     perPage: 300
-  })
+  }),
+  {
+    watch: [() => settings.selectedReciterId]
+  }
 );
 
 const handleOpenTafsir = (verseKey: string) => {
@@ -169,4 +174,8 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
+
+onUnmounted(() => {
+  audioPlayer.closePlayer();
+});
 </script>

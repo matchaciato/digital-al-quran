@@ -139,10 +139,7 @@ const handlePlayVerse = (verse: Verse) => {
   if (isThisPlaying) {
     audioPlayer.togglePlayPause();
   } else {
-    const audioUrl = verse.audio?.url || '';
-    if (audioUrl) {
-      audioPlayer.playVerse(audioUrl, verse.verse_key);
-    }
+    audioPlayer.playVerse(verse.audio?.url, verse.verse_key);
   }
 };
 </script>

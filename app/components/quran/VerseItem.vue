@@ -181,10 +181,7 @@ const handlePlay = () => {
   if (isPlayingThisVerse.value) {
     audioPlayer.togglePlayPause();
   } else {
-    const audioUrl = props.verse.audio?.url || '';
-    if (audioUrl) {
-      audioPlayer.playVerse(audioUrl, props.verse.verse_key);
-    }
+    audioPlayer.playVerse(props.verse.audio?.url, props.verse.verse_key);
   }
 };
 

@@ -1,29 +1,30 @@
 <template>
-  <div
+  <aside
     v-if="audioStore.audioUrl"
-    class="fixed bottom-4 left-1/2 z-40 w-[95%] max-w-5xl -translate-x-1/2 rounded-2xl border border-border/80 bg-background/90 p-4 shadow-xl backdrop-blur-md transition-all duration-300"
+    aria-label="Pemutar Audio Murottal"
+    class="fixed bottom-3 sm:bottom-4 left-1/2 z-40 w-[94%] max-w-4xl -translate-x-1/2 rounded-2xl border border-border/80 bg-background/95 p-3.5 sm:p-4 shadow-2xl backdrop-blur-lg transition-all duration-300"
   >
-    <div class="flex flex-col gap-3">
-      <div class="flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="flex h-8 shrink-0 items-center justify-center rounded-lg bg-primary px-2.5 text-xs font-bold text-primary-foreground">
+    <div class="flex flex-col gap-2.5 sm:gap-3">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2.5 min-w-0 flex-1">
+          <span class="flex h-7 sm:h-8 shrink-0 items-center justify-center rounded-lg bg-primary px-2 sm:px-2.5 text-[11px] sm:text-xs font-bold text-primary-foreground">
             {{ audioStore.currentVerseKey ? `Ayat ${audioStore.currentVerseKey}` : 'Murottal' }}
           </span>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <p class="truncate text-xs font-semibold text-foreground">
               {{ currentReciterName }}
             </p>
-            <p class="truncate text-[11px] text-muted-foreground">
+            <p class="truncate text-[10px] sm:text-[11px] text-muted-foreground">
               Surah ke-{{ audioStore.currentChapterId || 1 }}
             </p>
           </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="hidden sm:flex items-center gap-2">
           <button
             type="button"
             @click="isHifzModalOpen = true"
-            class="rounded-md border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted"
+            class="rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
             :class="[
               hifz.isHifzActive.value
                 ? 'border-primary bg-primary/10 text-primary font-semibold'
@@ -31,7 +32,7 @@
             ]"
             title="Buka Studio Hafalan (Hifz A-B Loop)"
           >
-            {{ hifz.isHifzActive.value ? `Hifz (Loop ${hifz.currentRepeat.value}/${hifz.repeatCount.value})` : 'Studio Hifz' }}
+            {{ hifz.isHifzActive.value ? `Hifz (${hifz.currentRepeat.value}/${hifz.repeatCount.value})` : 'Studio Hifz' }}
           </button>
 
           <button
@@ -46,33 +47,33 @@
 
           <button
             type="button"
-            @click="audioStore.toggleLoop()"
-            class="rounded-md p-1.5 transition-colors"
+            @click="audioPlayer.toggleLoop()"
+            class="rounded-lg p-2 transition-colors"
             :class="[
               audioStore.isLooping
                 ? 'text-primary bg-primary/10 font-semibold'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             ]"
-            :title="audioStore.isLooping ? 'Pengulangan Aktif' : 'Pengulangan Mati'"
+            :title="audioStore.isLooping ? 'Pengulangan Aktif (Looping On)' : 'Pengulangan Mati'"
           >
             <Repeat class="h-4 w-4" />
           </button>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2">
           <button
             type="button"
             @click="isReciterModalOpen = true"
-            class="hidden rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-block"
+            class="hidden md:inline-block rounded-lg border border-border px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Ganti Qari"
           >
-            Qari
+            Ganti Qari
           </button>
 
           <select
             :value="audioStore.playbackRate"
             @change="e => audioPlayer.setPlaybackRate(Number((e.target as HTMLSelectElement).value))"
-            class="rounded-md border border-border bg-card px-2 py-1 text-xs text-foreground focus:outline-none"
+            class="rounded-lg border border-border bg-card px-2 py-1 text-xs text-foreground focus:outline-none cursor-pointer"
             title="Kecepatan Putar"
           >
             <option :value="0.75">0.75x</option>
@@ -83,26 +84,77 @@
 
           <button
             type="button"
-            @click="audioStore.reset()"
-            class="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Tutup Pemutar"
+            @click="audioPlayer.closePlayer()"
+            class="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground active:scale-95"
+            title="Tutup Pemutar Audio"
           >
             <X class="h-4 w-4" />
           </button>
         </div>
       </div>
 
-      <div class="flex items-center gap-3 text-xs text-muted-foreground font-mono">
-        <span>{{ formatTime(audioStore.currentTime) }}</span>
+      <div class="flex sm:hidden items-center justify-between border-t border-border/40 pt-2 text-xs">
+        <button
+          type="button"
+          @click="isReciterModalOpen = true"
+          class="rounded-md border border-border/80 px-2 py-1 text-[11px] font-medium text-muted-foreground active:bg-muted"
+        >
+          Qari
+        </button>
+
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            @click="audioPlayer.toggleLoop()"
+            class="rounded-md p-1.5 transition-colors"
+            :class="[
+              audioStore.isLooping
+                ? 'text-primary bg-primary/10 font-semibold'
+                : 'text-muted-foreground'
+            ]"
+            title="Pengulangan"
+          >
+            <Repeat class="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
+            @click="audioPlayer.togglePlayPause()"
+            class="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm active:scale-90 transition-all"
+            :title="audioStore.isPlaying ? 'Jeda' : 'Putar'"
+          >
+            <Pause v-if="audioStore.isPlaying" class="h-4 w-4" />
+            <Play v-else class="h-4 w-4 fill-current ml-0.5" />
+          </button>
+
+          <button
+            type="button"
+            @click="isHifzModalOpen = true"
+            class="rounded-md border border-border/80 px-2 py-1 text-[11px] font-medium transition-colors"
+            :class="[
+              hifz.isHifzActive.value
+                ? 'border-primary bg-primary/10 text-primary font-semibold'
+                : 'text-muted-foreground'
+            ]"
+          >
+            {{ hifz.isHifzActive.value ? `Hifz ${hifz.currentRepeat.value}/${hifz.repeatCount.value}` : 'Hifz' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 text-[11px] sm:text-xs text-muted-foreground font-mono">
+        <span class="w-8 text-right shrink-0">{{ formatTime(audioStore.currentTime) }}</span>
         <input
           type="range"
           min="0"
-          :max="audioStore.duration || 100"
-          :value="audioStore.currentTime"
+          :max="audioStore.duration > 0 ? audioStore.duration : 1"
+          step="0.1"
+          :value="Math.min(audioStore.currentTime, audioStore.duration || 1)"
           @input="e => audioPlayer.seekTo(Number((e.target as HTMLInputElement).value))"
           class="h-1.5 w-full cursor-pointer rounded-lg bg-muted accent-primary"
+          aria-label="Posisi pemutaran audio"
         />
-        <span>{{ formatTime(audioStore.duration) }}</span>
+        <span class="w-8 shrink-0">{{ formatTime(audioStore.duration) }}</span>
       </div>
     </div>
 
@@ -118,7 +170,7 @@
       :is-open="isReciterModalOpen"
       @close="isReciterModalOpen = false"
     />
-  </div>
+  </aside>
 </template>
 
 <script setup lang="ts">
@@ -143,7 +195,7 @@ const currentReciterName = computed(() => {
 });
 
 const formatTime = (seconds: number): string => {
-  if (!seconds || isNaN(seconds)) return '0:00';
+  if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;

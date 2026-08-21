@@ -102,7 +102,7 @@ const props = defineProps<{
   hasBismillah?: boolean;
 }>();
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'openTafsir', verseKey: string): void;
 }>();
 
@@ -122,7 +122,7 @@ const currentPage = computed(() => props.verses[0]?.page_number || 1);
 
 const selectedVerseTranslation = computed(() => {
   if (!selectedVerse.value?.translations || selectedVerse.value.translations.length === 0) return '';
-  return stripHtmlTags(selectedVerse.value.translations[0]!.text);
+  return stripHtmlTags(selectedVerse.value.translations[0]?.text || '');
 });
 
 const handleSelectVerse = (verse: Verse) => {
@@ -134,10 +134,7 @@ const handlePlaySelected = () => {
   if (isSelectedPlaying.value) {
     audioPlayer.togglePlayPause();
   } else {
-    const audioUrl = selectedVerse.value.audio?.url || '';
-    if (audioUrl) {
-      audioPlayer.playVerse(audioUrl, selectedVerse.value.verse_key);
-    }
+    audioPlayer.playVerse(selectedVerse.value.audio?.url, selectedVerse.value.verse_key);
   }
 };
 </script>

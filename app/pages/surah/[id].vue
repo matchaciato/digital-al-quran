@@ -188,16 +188,19 @@ const modes = [
 ];
 
 const { data: chapterData, pending: pendingChapter, error: errorChapter } = await useAsyncData(
-  `chapter-${chapterId.value}`,
+  () => `chapter-${chapterId.value}`,
   () => quranApi.getChapter(chapterId.value)
 );
 
 const { data: versesData, pending: pendingVerses, error: errorVerses } = await useAsyncData(
-  `verses-${chapterId.value}-${settings.selectedReciterId}`,
+  () => `verses-${chapterId.value}-${settings.selectedReciterId}`,
   () => quranApi.getVersesByChapter(chapterId.value, {
     reciterId: settings.selectedReciterId,
     perPage: 300
-  })
+  }),
+  {
+    watch: [() => settings.selectedReciterId]
+  }
 );
 
 const isPlayingFullSurah = computed(() => {
@@ -235,4 +238,8 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
+
+onUnmounted(() => {
+  audioPlayer.closePlayer();
+});
 </script>

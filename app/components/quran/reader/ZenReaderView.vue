@@ -96,13 +96,10 @@ const formattedTimer = computed(() => {
 });
 
 const handlePlayVerse = (verse: Verse) => {
-  const audioUrl = verse.audio?.url || '';
-  if (audioUrl) {
-    if (audioStore.currentVerseKey === verse.verse_key && audioStore.isPlaying) {
-      audioPlayer.togglePlayPause();
-    } else {
-      audioPlayer.playVerse(audioUrl, verse.verse_key);
-    }
+  if (audioStore.currentVerseKey === verse.verse_key && audioStore.isPlaying) {
+    audioPlayer.togglePlayPause();
+  } else {
+    audioPlayer.playVerse(verse.audio?.url, verse.verse_key);
   }
 };
 
