@@ -1,23 +1,40 @@
 import { useAudioStore } from '~/stores/useAudioStore';
+import { useSettingsStore } from '~/stores/useSettingsStore';
 import { resolveVerseAudioUrl } from '~/utils/audioUrlResolver';
 
 let audioElement: HTMLAudioElement | null = null;
 
 export function useAudioPlayer() {
   const audioStore = useAudioStore();
+  const settings = useSettingsStore();
 
   const getAudioElement = (): HTMLAudioElement => {
     if (!audioElement && import.meta.client) {
       audioElement = new Audio();
+      audioElement.preload = 'auto';
+      audioElement.loop = audioStore.isLooping;
       setupAudioListeners(audioElement);
     }
     return audioElement!;
   };
 
   const setupAudioListeners = (audio: HTMLAudioElement) => {
+    audio.addEventListener('loadedmetadata', () => {
+      if (audio.duration && !isNaN(audio.duration)) {
+        audioStore.updateTime(audio.currentTime, audio.duration);
+      }
+    });
+
+    audio.addEventListener('durationchange', () => {
+      if (audio.duration && !isNaN(audio.duration)) {
+        audioStore.updateTime(audio.currentTime, audio.duration);
+      }
+    });
+
     audio.addEventListener('timeupdate', () => {
       if (!audio) return;
-      audioStore.updateTime(audio.currentTime, audio.duration || 0);
+      const dur = (audio.duration && !isNaN(audio.duration)) ? audio.duration : audioStore.duration;
+      audioStore.updateTime(audio.currentTime, dur);
       syncActiveVerse(audio.currentTime);
     });
 
@@ -30,12 +47,20 @@ export function useAudioPlayer() {
     });
 
     audio.addEventListener('ended', () => {
-      audioStore.setPlaybackStatus(false);
-      handleAudioEnded();
+      if (audioStore.isLooping && audioStore.currentVerseKey) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.warn(e));
+        audioStore.setPlaybackStatus(true);
+      } else {
+        if (audio.duration) {
+          audioStore.updateTime(audio.duration, audio.duration);
+        }
+        audioStore.setPlaybackStatus(false);
+      }
     });
 
     audio.addEventListener('error', (e) => {
-      console.warn('Audio playback error encountered on current source:', e);
+      console.warn('Audio playback error on current element source:', e);
       audioStore.setPlaybackStatus(false);
     });
   };
@@ -65,12 +90,14 @@ export function useAudioPlayer() {
 
   const playVerse = async (audioUrl: string | undefined | null, verseKey: string) => {
     const audio = getAudioElement();
-    const formattedUrl = resolveVerseAudioUrl(audioUrl, verseKey);
+    const formattedUrl = resolveVerseAudioUrl(audioUrl, verseKey, settings.selectedReciterId);
 
     if (!formattedUrl) {
       console.warn('Cannot resolve audio URL for verse', verseKey);
       return;
     }
+
+    audio.loop = audioStore.isLooping;
 
     if (audioStore.audioUrl !== formattedUrl || audio.src !== formattedUrl) {
       audio.src = formattedUrl;
@@ -83,7 +110,8 @@ export function useAudioPlayer() {
       await audio.play();
       audioStore.setPlaybackStatus(true);
     } catch (err) {
-      console.warn('Autoplay prevented or audio source failed, attempting fallback...', err);
+      console.warn('Playback retry with standard format...', err);
+      // Fallback
       if (verseKey.includes(':')) {
         const [s, a] = verseKey.split(':');
         const fallbackUrl = `https://verses.quran.com/Alafasy/mp3/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`;
@@ -117,11 +145,19 @@ export function useAudioPlayer() {
     }
   };
 
+  const toggleLoop = () => {
+    audioStore.toggleLoop();
+    const audio = getAudioElement();
+    if (audio) {
+      audio.loop = audioStore.isLooping;
+    }
+  };
+
   const seekTo = (seconds: number) => {
     const audio = getAudioElement();
     if (audio && !isNaN(seconds)) {
       audio.currentTime = seconds;
-      audioStore.updateTime(seconds, audio.duration || 0);
+      audioStore.updateTime(seconds, audio.duration || audioStore.duration);
     }
   };
 
@@ -141,19 +177,26 @@ export function useAudioPlayer() {
     }
   };
 
-  const handleAudioEnded = () => {
-    if (audioStore.isLooping && audioStore.currentVerseKey) {
-      const audio = getAudioElement();
-      audio.currentTime = 0;
-      audio.play().catch(e => console.warn(e));
-    } else {
-      audioStore.setActiveVerseKey(null);
-    }
-  };
+  if (import.meta.client) {
+    watch(() => settings.selectedReciterId, (newReciterId) => {
+      if (audioStore.currentVerseKey) {
+        const newUrl = resolveVerseAudioUrl(null, audioStore.currentVerseKey, newReciterId);
+        const wasPlaying = audioStore.isPlaying;
+        const audio = getAudioElement();
+        audio.src = newUrl;
+        audio.load();
+        audioStore.setAudioSource(newUrl, audioStore.currentChapterId || 1);
+        if (wasPlaying) {
+          audio.play().catch(e => console.warn(e));
+        }
+      }
+    });
+  }
 
   return {
     playVerse,
     togglePlayPause,
+    toggleLoop,
     seekTo,
     setVolume,
     setPlaybackRate,

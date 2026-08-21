@@ -1,4 +1,26 @@
-export function resolveVerseAudioUrl(rawUrl: string | undefined | null, verseKey: string): string {
+const RECITER_PATH_MAP: Record<number, string> = {
+  7: 'Alafasy/mp3',
+  6: 'Husary/mp3',
+  12: 'Husary_Mujawwad/mp3',
+  2: 'Abdul_Basit_Murattal/mp3',
+  1: 'Abdul_Basit_Mujawwad/mp3',
+  8: 'Minshawi/Murattal/mp3',
+  9: 'Minshawi/Mujawwad/mp3',
+  3: 'Ghamadi/mp3',
+  4: 'Shatri/mp3',
+  5: 'Rifai/mp3',
+  10: 'Shuraym/mp3',
+  11: 'Sudais/mp3',
+  13: 'Maher_AlMuaiqly/mp3',
+  14: 'Dussary/mp3',
+  15: 'Ali_Jaber/mp3'
+};
+
+export function resolveVerseAudioUrl(
+  rawUrl: string | undefined | null,
+  verseKey: string,
+  reciterId: number = 7
+): string {
   if (rawUrl && typeof rawUrl === 'string' && rawUrl.trim()) {
     const cleanUrl = rawUrl.trim();
     if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
@@ -19,7 +41,8 @@ export function resolveVerseAudioUrl(rawUrl: string | undefined | null, verseKey
     if (!isNaN(surahNum) && !isNaN(ayahNum)) {
       const paddedSurah = String(surahNum).padStart(3, '0');
       const paddedAyah = String(ayahNum).padStart(3, '0');
-      return `https://verses.quran.com/Alafasy/mp3/${paddedSurah}${paddedAyah}.mp3`;
+      const reciterFolder = RECITER_PATH_MAP[reciterId] || 'Alafasy/mp3';
+      return `https://verses.quran.com/${reciterFolder}/${paddedSurah}${paddedAyah}.mp3`;
     }
   }
 

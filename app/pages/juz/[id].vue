@@ -152,11 +152,14 @@ const modes = [
 ];
 
 const { data, pending, error } = await useAsyncData(
-  `juz-${juzId.value}-${settings.selectedReciterId}`,
+  () => `juz-${juzId.value}-${settings.selectedReciterId}`,
   () => quranApi.getVersesByJuz(juzId.value, {
     reciterId: settings.selectedReciterId,
     perPage: 300
-  })
+  }),
+  {
+    watch: [() => settings.selectedReciterId]
+  }
 );
 
 const handleOpenTafsir = (verseKey: string) => {

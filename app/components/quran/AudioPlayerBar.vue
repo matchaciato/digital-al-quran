@@ -46,14 +46,14 @@
 
           <button
             type="button"
-            @click="audioStore.toggleLoop()"
+            @click="audioPlayer.toggleLoop()"
             class="rounded-md p-1.5 transition-colors"
             :class="[
               audioStore.isLooping
                 ? 'text-primary bg-primary/10 font-semibold'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground'
             ]"
-            :title="audioStore.isLooping ? 'Pengulangan Aktif' : 'Pengulangan Mati'"
+            :title="audioStore.isLooping ? 'Pengulangan Aktif (Looping On)' : 'Pengulangan Mati'"
           >
             <Repeat class="h-4 w-4" />
           </button>
@@ -63,10 +63,10 @@
           <button
             type="button"
             @click="isReciterModalOpen = true"
-            class="hidden rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground sm:inline-block"
+            class="rounded-md border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground inline-block"
             title="Ganti Qari"
           >
-            Qari
+            Ganti Qari
           </button>
 
           <select
@@ -97,8 +97,9 @@
         <input
           type="range"
           min="0"
-          :max="audioStore.duration || 100"
-          :value="audioStore.currentTime"
+          :max="audioStore.duration > 0 ? audioStore.duration : 1"
+          step="0.1"
+          :value="Math.min(audioStore.currentTime, audioStore.duration || 1)"
           @input="e => audioPlayer.seekTo(Number((e.target as HTMLInputElement).value))"
           class="h-1.5 w-full cursor-pointer rounded-lg bg-muted accent-primary"
         />
@@ -143,7 +144,7 @@ const currentReciterName = computed(() => {
 });
 
 const formatTime = (seconds: number): string => {
-  if (!seconds || isNaN(seconds)) return '0:00';
+  if (!seconds || isNaN(seconds) || seconds < 0) return '0:00';
   const mins = Math.floor(seconds / 60);
   const secs = Math.floor(seconds % 60);
   return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
