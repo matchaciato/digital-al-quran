@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useLocalStorage } from '@vueuse/core';
 import { QURAN_API } from '~/constants/quran';
 
-export type ReadingMode = 'verse' | 'page';
+export type ReadingMode = 'verse' | 'mushaf' | 'zen' | 'parallel';
 
 export const useSettingsStore = defineStore('settings', () => {
   const arabicFontSize = useLocalStorage<number>('quran_arabic_font_size', 28);
