@@ -1,4 +1,3 @@
-import { useMagicKeys, whenever } from '@vueuse/core';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useSettingsStore } from '~/stores/useSettingsStore';
@@ -12,14 +11,13 @@ export const useKeyboardShortcuts = () => {
   const settings = useSettingsStore();
 
   if (import.meta.client) {
-    const keys = useMagicKeys();
-    const cmdK = keys['Cmd+K'] || keys['Ctrl+K'];
-
-    whenever(cmdK, () => {
-      isCommandPaletteOpen.value = !isCommandPaletteOpen.value;
-    });
-
     window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        isCommandPaletteOpen.value = !isCommandPaletteOpen.value;
+        return;
+      }
+
       const activeTag = (document.activeElement?.tagName || '').toLowerCase();
       const isInput = activeTag === 'input' || activeTag === 'textarea' || (document.activeElement as HTMLElement)?.isContentEditable;
 
