@@ -5,6 +5,23 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/globals.css'],
 
+  app: {
+    head: {
+      title: 'Digital Al-Qur\'an — Editorial Typography & Linguistic Anatomy',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' },
+        { name: 'description', content: 'Platform Al-Qur\'an Digital modern berkelas dunia dengan tipografi editorial presisi, 4 mode membaca, anatomi morfologi kata, dan audio studio hafalan.' },
+        { name: 'theme-color', content: '#1B4D3E' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }
+      ],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.ico' }
+      ]
+    }
+  },
+
   modules: [
     'shadcn-nuxt',
     '@pinia/nuxt',
@@ -23,20 +40,21 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Digital Al-Quran',
-      short_name: 'Al-Quran',
-      theme_color: '#059669',
-      background_color: '#ffffff',
+      name: 'Digital Al-Qur\'an Platform',
+      short_name: 'Al-Qur\'an',
+      description: 'Platform Al-Qur\'an Digital Editorial Berkelas Dunia',
+      theme_color: '#1B4D3E',
+      background_color: '#FAF8F5',
       display: 'standalone',
       orientation: 'portrait',
       icons: [
         {
-          src: 'pwa-192x192.png',
+          src: '/pwa-192x192.png',
           sizes: '192x192',
           type: 'image/png'
         },
         {
-          src: 'pwa-512x512.png',
+          src: '/pwa-512x512.png',
           sizes: '512x512',
           type: 'image/png'
         }
@@ -76,7 +94,7 @@ export default defineNuxtConfig({
       ]
     },
     devOptions: {
-      enabled: true,
+      enabled: false,
       type: 'module',
       suppressWarnings: true
     }
@@ -92,4 +110,4 @@ export default defineNuxtConfig({
     prefix: '',
     componentDir: '@/components/ui'
   }
-})
+});

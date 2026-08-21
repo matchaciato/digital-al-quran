@@ -43,6 +43,14 @@
 
         <button
           type="button"
+          @click="isExportCardOpen = true"
+          class="rounded-md px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        >
+          Kartu
+        </button>
+
+        <button
+          type="button"
           @click="handleBookmark"
           class="rounded-md px-2.5 py-1 font-medium transition-colors"
           :class="[
@@ -113,6 +121,13 @@
         </p>
       </div>
     </section>
+
+    <QuranExportAyatCardExportModal
+      :is-open="isExportCardOpen"
+      :verse="verse"
+      :surah-name="surahName"
+      @close="isExportCardOpen = false"
+    />
   </article>
 </template>
 
@@ -142,6 +157,7 @@ const audioPlayer = useAudioPlayer();
 const bookmarkStore = useBookmarkStore();
 
 const copied = ref(false);
+const isExportCardOpen = ref(false);
 
 const isActive = computed(() => audioStore.currentVerseKey === props.verse.verse_key);
 const isPlayingThisVerse = computed(() => isActive.value && audioStore.isPlaying);
