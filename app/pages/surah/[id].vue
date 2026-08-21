@@ -238,4 +238,8 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
+
+onUnmounted(() => {
+  audioPlayer.closePlayer();
+});
 </script>

@@ -111,7 +111,6 @@ export function useAudioPlayer() {
       audioStore.setPlaybackStatus(true);
     } catch (err) {
       console.warn('Playback retry with standard format...', err);
-      // Fallback
       if (verseKey.includes(':')) {
         const [s, a] = verseKey.split(':');
         const fallbackUrl = `https://verses.quran.com/Alafasy/mp3/${String(s).padStart(3, '0')}${String(a).padStart(3, '0')}.mp3`;
@@ -151,6 +150,21 @@ export function useAudioPlayer() {
     if (audio) {
       audio.loop = audioStore.isLooping;
     }
+  };
+
+  const stopAudio = () => {
+    const audio = getAudioElement();
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      audio.removeAttribute('src');
+      audio.load();
+    }
+    audioStore.reset();
+  };
+
+  const closePlayer = () => {
+    stopAudio();
   };
 
   const seekTo = (seconds: number) => {
@@ -197,6 +211,8 @@ export function useAudioPlayer() {
     playVerse,
     togglePlayPause,
     toggleLoop,
+    stopAudio,
+    closePlayer,
     seekTo,
     setVolume,
     setPlaybackRate,

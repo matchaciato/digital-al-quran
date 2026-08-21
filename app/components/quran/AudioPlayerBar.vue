@@ -83,9 +83,9 @@
 
           <button
             type="button"
-            @click="audioStore.reset()"
+            @click="audioPlayer.closePlayer()"
             class="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="Tutup Pemutar"
+            title="Tutup Pemutar Audio"
           >
             <X class="h-4 w-4" />
           </button>
