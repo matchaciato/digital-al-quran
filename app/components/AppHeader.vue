@@ -18,7 +18,7 @@
         </span>
       </NuxtLink>
 
-      <nav class="flex items-center gap-1 sm:gap-2">
+      <nav class="hidden md:flex items-center gap-1 sm:gap-2">
         <NuxtLink
           v-for="nav in navigations"
           :key="nav.href"
@@ -33,16 +33,28 @@
       <div class="flex items-center gap-2">
         <button
           type="button"
+          @click="$emit('openCommand')"
+          class="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-2.5 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:bg-muted hover:text-foreground transition-colors"
+          title="Buka Command Palette (Cmd+K)"
+        >
+          <Search class="h-3.5 w-3.5" />
+          <span class="hidden sm:inline-block font-mono text-[10px]">Cmd+K</span>
+        </button>
+
+        <CommonLanguageSwitcher />
+
+        <button
+          type="button"
           @click="settings.toggleDarkMode()"
-          class="rounded-md size-5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          class="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           :title="
             settings.isDarkMode
               ? 'Beralih ke Mode Terang'
               : 'Beralih ke Mode Gelap'
           "
         >
-          <Moon v-if="settings.isDarkMode" class="size-full" />
-          <Sun v-else class="size-full" />
+          <Moon v-if="settings.isDarkMode" class="h-4 w-4" />
+          <Sun v-else class="h-4 w-4" />
         </button>
 
         <button
@@ -58,8 +70,12 @@
 </template>
 
 <script lang="ts" setup>
-import { Moon, Sun } from "@lucide/vue";
+import { Search, Moon, Sun } from "@lucide/vue";
 import { useSettingsStore } from "~/stores/useSettingsStore";
+
+defineEmits<{
+  (e: 'openCommand'): void;
+}>();
 
 const settings = useSettingsStore();
 
