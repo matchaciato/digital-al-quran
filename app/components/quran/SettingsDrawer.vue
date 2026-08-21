@@ -1,105 +1,152 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-end transition-opacity">
-    <div class="w-full max-w-md bg-white dark:bg-zinc-900 h-full p-6 shadow-xl flex flex-col justify-between overflow-y-auto">
-      <div class="space-y-6">
-        <div class="flex items-center justify-between border-b pb-4 dark:border-zinc-800">
-          <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100">Pengaturan Tampilan</h2>
-          <button @click="closeDrawer" class="p-2 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 rounded-lg">
-            <X class="w-5 h-5" />
+  <Teleport to="body">
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-xs transition-opacity duration-200"
+      @click.self="closeDrawer"
+    >
+      <div
+        class="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-border bg-background p-6 shadow-2xl transition-transform"
+      >
+        <div class="space-y-6">
+          <div class="flex items-center justify-between border-b border-border pb-4">
+            <div>
+              <h2 class="text-lg font-semibold tracking-tight text-foreground">Pengaturan Tampilan</h2>
+              <p class="text-xs text-muted-foreground">Sesuaikan preferensi membaca dan tipografi</p>
+            </div>
+            <button
+              @click="closeDrawer"
+              class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Tutup pengaturan"
+            >
+              <X class="h-4 w-4" />
+            </button>
+          </div>
+
+          <div class="space-y-5">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ukuran Tipografi</h3>
+            
+            <div class="space-y-2 rounded-lg border border-border/70 bg-card p-4">
+              <div class="flex justify-between text-xs">
+                <span class="font-medium text-foreground">Teks Arab</span>
+                <span class="font-semibold text-primary">{{ settings.arabicFontSize }}px</span>
+              </div>
+              <input
+                type="range"
+                min="18"
+                max="48"
+                :value="settings.arabicFontSize"
+                @input="e => settings.setArabicFontSize(Number((e.target as HTMLInputElement).value))"
+                class="w-full cursor-pointer accent-primary"
+              />
+              <p
+                class="quran-arabic mt-2 rounded bg-muted/40 p-3 text-center text-foreground"
+                :style="{ fontSize: `${settings.arabicFontSize}px` }"
+                dir="rtl"
+              >
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              </p>
+            </div>
+
+            <div class="space-y-2 rounded-lg border border-border/70 bg-card p-4">
+              <div class="flex justify-between text-xs">
+                <span class="font-medium text-foreground">Teks Terjemahan</span>
+                <span class="font-semibold text-primary">{{ settings.translationFontSize }}px</span>
+              </div>
+              <input
+                type="range"
+                min="12"
+                max="24"
+                :value="settings.translationFontSize"
+                @input="e => settings.setTranslationFontSize(Number((e.target as HTMLInputElement).value))"
+                class="w-full cursor-pointer accent-primary"
+              />
+              <p
+                class="mt-2 text-muted-foreground"
+                :style="{ fontSize: `${settings.translationFontSize}px` }"
+              >
+                Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-4 border-t border-border pt-5">
+            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Elemen Tampilan</h3>
+
+            <div class="flex items-center justify-between py-1">
+              <div>
+                <p class="text-sm font-medium text-foreground">Transliterasi Latin</p>
+                <p class="text-xs text-muted-foreground">Tampilkan teks ejaan latin di bawah ayat</p>
+              </div>
+              <button
+                type="button"
+                @click="settings.toggleLatin()"
+                :class="[settings.showLatin ? 'bg-primary' : 'bg-muted border border-border']"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                role="switch"
+                :aria-checked="settings.showLatin"
+              >
+                <span
+                  :class="[settings.showLatin ? 'translate-x-6 bg-primary-foreground' : 'translate-x-1 bg-muted-foreground']"
+                  class="inline-block h-4 w-4 transform rounded-full transition-transform"
+                />
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between py-1">
+              <div>
+                <p class="text-sm font-medium text-foreground">Terjemahan Ayat</p>
+                <p class="text-xs text-muted-foreground">Tampilkan arti terjemahan resmi</p>
+              </div>
+              <button
+                type="button"
+                @click="settings.toggleTranslation()"
+                :class="[settings.showTranslation ? 'bg-primary' : 'bg-muted border border-border']"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                role="switch"
+                :aria-checked="settings.showTranslation"
+              >
+                <span
+                  :class="[settings.showTranslation ? 'translate-x-6 bg-primary-foreground' : 'translate-x-1 bg-muted-foreground']"
+                  class="inline-block h-4 w-4 transform rounded-full transition-transform"
+                />
+              </button>
+            </div>
+
+            <div class="flex items-center justify-between py-1">
+              <div>
+                <p class="text-sm font-medium text-foreground">Mode Gelap (Dark Mode)</p>
+                <p class="text-xs text-muted-foreground">Tema kontras nyaman untuk malam hari</p>
+              </div>
+              <button
+                type="button"
+                @click="settings.toggleDarkMode()"
+                :class="[settings.isDarkMode ? 'bg-primary' : 'bg-muted border border-border']"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                role="switch"
+                :aria-checked="settings.isDarkMode"
+              >
+                <span
+                  :class="[settings.isDarkMode ? 'translate-x-6 bg-primary-foreground' : 'translate-x-1 bg-muted-foreground']"
+                  class="inline-block h-4 w-4 transform rounded-full transition-transform"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-border pt-5">
+          <button
+            type="button"
+            @click="closeDrawer"
+            class="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 active:scale-98"
+          >
+            Simpan & Selesai
           </button>
         </div>
-
-        <div class="space-y-4">
-          <h3 class="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Ukuran Teks</h3>
-          
-          <div class="space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-zinc-700 dark:text-zinc-300">Teks Arab</span>
-              <span class="font-semibold text-emerald-600">{{ settings.arabicFontSize }}px</span>
-            </div>
-            <input
-              type="range"
-              min="16"
-              max="50"
-              :value="settings.arabicFontSize"
-              @input="e => settings.setArabicFontSize(Number((e.target as HTMLInputElement).value))"
-              class="w-full accent-emerald-600 cursor-pointer"
-            />
-          </div>
-
-          <div class="space-y-2">
-            <div class="flex justify-between text-sm">
-              <span class="text-zinc-700 dark:text-zinc-300">Teks Terjemahan</span>
-              <span class="font-semibold text-emerald-600">{{ settings.translationFontSize }}px</span>
-            </div>
-            <input
-              type="range"
-              min="12"
-              max="30"
-              :value="settings.translationFontSize"
-              @input="e => settings.setTranslationFontSize(Number((e.target as HTMLInputElement).value))"
-              class="w-full accent-emerald-600 cursor-pointer"
-            />
-          </div>
-        </div>
-
-        <div class="space-y-4 pt-4 border-t dark:border-zinc-800">
-          <h3 class="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Tampilan Konten</h3>
-
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tampilkan Latin (Transliterasi)</span>
-            <button
-              @click="settings.toggleLatin()"
-              :class="[settings.showLatin ? 'bg-emerald-600' : 'bg-zinc-300 dark:bg-zinc-700']"
-              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-            >
-              <span
-                :class="[settings.showLatin ? 'translate-x-6' : 'translate-x-1']"
-                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-              />
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tampilkan Terjemahan</span>
-            <button
-              @click="settings.toggleTranslation()"
-              :class="[settings.showTranslation ? 'bg-emerald-600' : 'bg-zinc-300 dark:bg-zinc-700']"
-              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-            >
-              <span
-                :class="[settings.showTranslation ? 'translate-x-6' : 'translate-x-1']"
-                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-              />
-            </button>
-          </div>
-
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Mode Gelap</span>
-            <button
-              @click="settings.toggleDarkMode()"
-              :class="[settings.isDarkMode ? 'bg-emerald-600' : 'bg-zinc-300 dark:bg-zinc-700']"
-              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-            >
-              <span
-                :class="[settings.isDarkMode ? 'translate-x-6' : 'translate-x-1']"
-                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-              />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-6 border-t dark:border-zinc-800">
-        <button
-          @click="closeDrawer"
-          class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors"
-        >
-          Selesai
-        </button>
       </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
