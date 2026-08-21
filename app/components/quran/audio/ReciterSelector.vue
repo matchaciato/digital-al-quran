@@ -2,50 +2,51 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4 backdrop-blur-xs transition-opacity"
       @click.self="$emit('close')"
     >
       <div
-        class="flex max-h-[85vh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
+        class="flex max-h-[85dvh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl transition-all"
       >
-        <header class="flex items-center justify-between border-b border-border p-5">
-          <div class="space-y-0.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
+        <header class="flex items-center justify-between border-b border-border p-4 sm:p-5 bg-card/40">
+          <div class="space-y-0.5 min-w-0 pr-2">
+            <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-primary">
               Katalog Qari Internasional
             </span>
-            <h2 class="text-base font-bold text-foreground">
+            <h2 class="truncate text-sm sm:text-base font-bold text-foreground">
               Pilih Qari Murottal & Mujawwad
             </h2>
           </div>
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            class="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground shrink-0"
+            aria-label="Tutup"
           >
             <X class="h-4 w-4" />
           </button>
         </header>
 
-        <div class="overflow-y-auto p-4 space-y-2">
+        <div class="overflow-y-auto p-3 sm:p-4 space-y-2">
           <button
             type="button"
             v-for="reciter in RECITERS_CATALOG"
             :key="reciter.id"
             @click="selectReciter(reciter.id)"
-            class="flex w-full items-center justify-between rounded-xl border p-4 text-left transition-all"
+            class="flex w-full items-center justify-between gap-3 rounded-xl border p-3 sm:p-4 text-left transition-all"
             :class="[
               settings.selectedReciterId === reciter.id
                 ? 'border-primary bg-primary/10 shadow-xs'
                 : 'border-border/70 bg-card hover:border-border hover:bg-muted/40'
             ]"
           >
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="font-semibold text-sm text-foreground">
+            <div class="space-y-1 min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                <span class="font-semibold text-xs sm:text-sm text-foreground truncate">
                   {{ reciter.name }}
                 </span>
                 <span
-                  class="rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                  class="rounded px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold shrink-0"
                   :class="[
                     reciter.style === 'Mujawwad'
                       ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
@@ -55,22 +56,22 @@
                   {{ reciter.style }}
                 </span>
               </div>
-              <p class="text-xs text-muted-foreground">
+              <p class="text-[11px] sm:text-xs text-muted-foreground">
                 {{ reciter.country || 'Internasional' }}
               </p>
             </div>
 
-            <span class="quran-arabic text-lg text-foreground/80" dir="rtl">
+            <span class="quran-arabic text-base sm:text-lg text-foreground/80 shrink-0" dir="rtl">
               {{ reciter.arabicName }}
             </span>
           </button>
         </div>
 
-        <footer class="border-t border-border p-4 bg-muted/20 flex justify-end">
+        <footer class="border-t border-border p-3.5 sm:p-4 bg-muted/20 flex justify-end">
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 active:scale-95"
+            class="rounded-lg bg-primary px-4 sm:px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
           >
             Selesai
           </button>
