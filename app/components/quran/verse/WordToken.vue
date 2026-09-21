@@ -1,27 +1,15 @@
 <template>
-  <span class="relative inline-block group">
+  <span class="inline-block">
     <button
       type="button"
       @click="handleClick"
+      :title="tooltipText"
       class="quran-arabic inline-block rounded-md px-1 py-0.5 transition-colors duration-150 hover:bg-primary/15 hover:text-primary active:scale-95 focus:outline-none"
       :class="{ 'text-primary font-semibold': isSelected }"
+      :aria-label="wordMeaning || word.text_uthmani"
     >
       {{ word.text_uthmani }}
     </button>
-
-    <span
-      class="pointer-events-none absolute bottom-full left-1/2 mb-2 hidden -translate-x-1/2 flex-col items-center rounded-lg border border-border/80 bg-popover px-2.5 py-1.5 text-center text-xs shadow-md group-hover:flex z-30 min-w-28 transition-all"
-    >
-      <span class="font-semibold text-foreground">
-        {{ wordMeaning || 'Kata' }}
-      </span>
-      <span v-if="wordTransliteration" class="text-[10px] text-muted-foreground italic">
-        {{ wordTransliteration }}
-      </span>
-      <span class="mt-1 text-[9px] text-primary/80">
-        Klik untuk bedah akar kata
-      </span>
-    </span>
   </span>
 </template>
 
@@ -48,6 +36,14 @@ const wordMeaning = computed(() => {
 
 const wordTransliteration = computed(() => {
   return stripHtmlTags(props.word.transliteration?.text || '');
+});
+
+const tooltipText = computed(() => {
+  const parts: string[] = [];
+  if (wordMeaning.value) parts.push(wordMeaning.value);
+  if (wordTransliteration.value) parts.push(`(${wordTransliteration.value})`);
+  parts.push('— Klik untuk bedah kata');
+  return parts.join(' ');
 });
 
 const handleClick = () => {

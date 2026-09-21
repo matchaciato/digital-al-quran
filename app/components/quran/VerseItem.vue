@@ -9,7 +9,7 @@
         : 'border-border/60 bg-card hover:border-border'
     ]"
   >
-    <header class="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3 text-xs">
+    <header class="relative z-10 flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3 text-xs">
       <div class="flex items-center gap-2">
         <span class="rounded-md bg-muted px-2 py-1 font-semibold text-foreground">
           {{ verse.verse_key }}
