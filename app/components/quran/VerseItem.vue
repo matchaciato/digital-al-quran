@@ -38,7 +38,17 @@
           @click="$emit('openTafsir', verse.verse_key)"
           class="rounded-md px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
-          Tafsir
+          {{ t('reader.tafsir') }}
+        </button>
+
+        <button
+          type="button"
+          @click="isQuickTadabburOpen = true"
+          class="relative rounded-md px-2.5 py-1 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground inline-flex items-center gap-1.5"
+          :title="hasTadabburNote ? 'Lihat catatan tadabbur' : 'Catat refleksi tadabbur'"
+        >
+          <span v-if="hasTadabburNote" class="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+          <span>Refleksi</span>
         </button>
 
         <button
@@ -59,7 +69,7 @@
               : 'text-muted-foreground hover:bg-muted hover:text-foreground'
           ]"
         >
-          {{ isBookmarked ? 'Ditandai' : 'Tandai' }}
+          {{ isBookmarked ? t('reader.bookmarked') : t('reader.bookmark') }}
         </button>
 
         <button
@@ -75,7 +85,7 @@
           @click="handleCopy"
           class="rounded-md px-2 py-1 font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
-          {{ copied ? 'Disalin!' : 'Salin' }}
+          {{ copied ? t('reader.copied') : t('reader.copy') }}
         </button>
       </nav>
     </header>
@@ -128,6 +138,14 @@
       :surah-name="surahName"
       @close="isExportCardOpen = false"
     />
+
+    <QuranVerseQuickTadabburModal
+      :is-open="isQuickTadabburOpen"
+      :verse-key="verse.verse_key"
+      :surah-name="surahName"
+      :surah-id="chapterId"
+      @close="isQuickTadabburOpen = false"
+    />
   </article>
 </template>
 
@@ -136,6 +154,8 @@ import { useSettingsStore } from '~/stores/useSettingsStore';
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import { useBookmarkStore } from '~/stores/useBookmarkStore';
+import { useTadabburStore } from '~/stores/useTadabburStore';
+import { useI18n } from '~/composables/useI18n';
 import { stripHtmlTags } from '~/utils/quranValidation';
 import { formatAyahGlyph } from '~/utils/arabicFormatters';
 import type { Verse, Word } from '~/types/quran';
@@ -155,13 +175,17 @@ const settings = useSettingsStore();
 const audioStore = useAudioStore();
 const audioPlayer = useAudioPlayer();
 const bookmarkStore = useBookmarkStore();
+const tadabburStore = useTadabburStore();
+const { t } = useI18n();
 
 const copied = ref(false);
 const isExportCardOpen = ref(false);
+const isQuickTadabburOpen = ref(false);
 
 const isActive = computed(() => audioStore.currentVerseKey === props.verse.verse_key);
 const isPlayingThisVerse = computed(() => isActive.value && audioStore.isPlaying);
 const isBookmarked = computed(() => bookmarkStore.isBookmarked(props.verse.verse_key));
+const hasTadabburNote = computed(() => tadabburStore.notes.some(n => n.verseKey === props.verse.verse_key));
 
 const translationText = computed(() => {
   if (!props.verse.translations || props.verse.translations.length === 0) return '';

@@ -1,63 +1,210 @@
 <template>
-  <section>
-    <h2>Pencarian Teks Al-Quran</h2>
+  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Hero Search Section -->
+    <header class="mb-8 text-center sm:mb-12">
+      <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-3">
+        <Sparkles class="h-3.5 w-3.5" />
+        <span>Eksplorasi Kata Kunci Al-Qur'an</span>
+      </div>
+      <h1 class="text-3xl font-serif font-bold tracking-tight text-foreground sm:text-4xl">
+        Pencarian Teks Al-Qur'an
+      </h1>
+      <p class="mt-2 text-sm text-muted-foreground sm:text-base max-w-xl mx-auto">
+        Cari ayat, kata kunci, terjemahan, dan tematik lintas 114 surah dengan cepat dan akurat.
+      </p>
 
-    <form @submit.prevent="handleSearch">
-      <input
-        type="search"
-        v-model="queryInput"
-        placeholder="Ketik kata kunci pencarian (misal: sabar, shalat, dll)..."
-      />
-      <button type="submit" :disabled="isLoading">
-        {{ isLoading ? 'Mencari...' : 'Cari' }}
-      </button>
-    </form>
+      <!-- Search Box Form -->
+      <form @submit.prevent="handleSearch" class="mt-6 flex max-w-2xl mx-auto gap-2">
+        <div class="relative flex-1">
+          <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <input
+            type="search"
+            v-model="queryInput"
+            placeholder="Cari kata kunci (contoh: sabar, surga, shalat, taqwa)..."
+            class="w-full rounded-xl border border-border bg-card/80 pl-11 pr-10 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+          />
+          <button
+            v-if="queryInput"
+            type="button"
+            @click="queryInput = ''"
+            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:text-foreground"
+          >
+            <X class="h-4 w-4" />
+          </button>
+        </div>
+        <button
+          type="submit"
+          :disabled="isLoading || !queryInput.trim()"
+          class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95"
+        >
+          <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin mr-1.5" />
+          <span v-else>Cari</span>
+        </button>
+      </form>
 
-    <div v-if="error">
-      <p>{{ error }}</p>
+      <!-- Popular Tags / Chips -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+        <span class="text-xs text-muted-foreground font-medium">Populer:</span>
+        <button
+          v-for="tag in popularKeywords"
+          :key="tag"
+          type="button"
+          @click="selectKeyword(tag)"
+          class="rounded-lg border border-border/80 bg-card/60 px-2.5 py-1 text-xs text-foreground/80 transition-colors hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95"
+        >
+          {{ tag }}
+        </button>
+      </div>
+    </header>
+
+    <!-- Error Alert -->
+    <div v-if="error" class="mb-6 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive">
+      {{ error }}
     </div>
 
+    <!-- Results Section -->
     <section v-if="results">
-      <h3>Hasil Pencarian untuk: "{{ currentQuery }}"</h3>
-      <p>Total Ditemukan: {{ results.search.total_results }} Ayat</p>
+      <!-- Result Stats Header -->
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-foreground">
+            Hasil Pencarian
+          </h2>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            Ditemukan <span class="font-semibold text-foreground">{{ results.search.total_results }}</span> ayat untuk kata kunci
+            <span class="inline-block rounded bg-primary/10 px-1.5 py-0.5 font-medium text-primary">"{{ currentQuery }}"</span>
+          </p>
+        </div>
 
-      <div v-if="results.search.results.length === 0">
-        <p>Tidak ada hasil yang cocok dengan kata kunci tersebut.</p>
+        <div v-if="results.search.results.length > 0" class="text-xs text-muted-foreground">
+          Menampilkan {{ results.search.results.length }} hasil relevan
+        </div>
       </div>
 
-      <ul v-else>
-        <li v-for="item in results.search.results" :key="item.verse_id">
-          <header>
-            <strong>Ayat {{ item.verse_key }}</strong>
-            <NuxtLink :to="`/surah/${item.verse_key.split(':')[0]}#verse-${item.verse_key}`">
-              Buka Ayat
-            </NuxtLink>
-          </header>
-          <div v-html="item.text"></div>
-          <div v-if="item.translations && item.translations.length > 0">
-            <p>{{ stripHtmlTags(item.translations[0].text) }}</p>
+      <!-- Empty State When No Results Found -->
+      <div
+        v-if="results.search.results.length === 0"
+        class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center"
+      >
+        <BookOpen class="h-12 w-12 text-muted-foreground/40 mb-3" />
+        <h3 class="text-base font-semibold text-foreground">Tidak ada ayat yang ditemukan</h3>
+        <p class="mt-1 text-xs text-muted-foreground max-w-sm">
+          Coba periksa ejaan kata kunci atau gunakan kata dasar yang lebih umum seperti "rahmat", "rezeki", atau "doa".
+        </p>
+      </div>
+
+      <!-- Results List -->
+      <div v-else class="space-y-4">
+        <article
+          v-for="item in results.search.results"
+          :key="item.verse_id"
+          class="group rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-sm transition-all hover:border-border hover:shadow-md"
+        >
+          <!-- Card Header: Verse Key & Quick Actions -->
+          <div class="flex items-center justify-between gap-3 border-b border-border/40 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="flex h-7 px-2.5 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary font-mono">
+                Ayat {{ item.verse_key }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <!-- Play Audio Preview -->
+              <button
+                type="button"
+                @click="handlePlayVerse(item.verse_key)"
+                class="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                title="Dengarkan ayat ini"
+              >
+                <Play class="h-3.5 w-3.5 fill-current" />
+                <span>Putar</span>
+              </button>
+
+              <!-- Copy Verse Text -->
+              <button
+                type="button"
+                @click="copyVerse(item)"
+                class="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                title="Salin Teks Ayat"
+              >
+                <Check v-if="copiedKey === item.verse_key" class="h-3.5 w-3.5 text-emerald-500" />
+                <Copy v-else class="h-3.5 w-3.5" />
+              </button>
+
+              <!-- Open in Surah Reader Link -->
+              <NuxtLink
+                :to="`/surah/${item.verse_key.split(':')[0]}#verse-${item.verse_key}`"
+                class="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+              >
+                <span>Buka</span>
+                <ExternalLink class="h-3.5 w-3.5" />
+              </NuxtLink>
+            </div>
           </div>
-        </li>
-      </ul>
+
+          <!-- Arabic Text -->
+          <div class="mb-4 text-right">
+            <div
+              class="font-quran text-2xl sm:text-3xl leading-loose sm:leading-[3rem] text-foreground tracking-wide select-text"
+              dir="rtl"
+              v-html="item.text"
+            ></div>
+          </div>
+
+          <!-- Indonesian Translation with Keyword Highlight -->
+          <div v-if="item.translations && item.translations.length > 0" class="border-t border-border/40 pt-3">
+            <p
+              class="text-sm leading-relaxed text-muted-foreground sm:text-base select-text"
+              v-html="highlightKeyword(stripHtmlTags(item.translations[0].text), currentQuery)"
+            ></p>
+          </div>
+        </article>
+      </div>
     </section>
-  </section>
+
+    <!-- Initial State (Before Searching) -->
+    <div
+      v-else-if="!isLoading"
+      class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 py-16 text-center"
+    >
+      <Compass class="h-12 w-12 text-primary/40 mb-3" />
+      <h3 class="text-base font-semibold text-foreground">Mulai Pencarian Ayat</h3>
+      <p class="mt-1 text-xs text-muted-foreground max-w-sm">
+        Ketik kata kunci apa saja atau klik salah satu topik populer di atas untuk menjelajahi kalamullah.
+      </p>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { Search, Sparkles, X, Loader2, BookOpen, ExternalLink, Play, Copy, Check, Compass } from '@lucide/vue';
 import { useQuranApi } from '~/composables/useQuranApi';
+import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import { stripHtmlTags } from '~/utils/quranValidation';
 import type { SearchResponse } from '~/types/quran';
 
 const route = useRoute();
 const router = useRouter();
-
 const quranApi = useQuranApi();
+const audioPlayer = useAudioPlayer();
+
+const popularKeywords = [
+  'Sabar',
+  'Shalat',
+  'Rahmat',
+  'Taqwa',
+  'Rezeki',
+  'Surga',
+  'Orang Tua',
+  'Hati'
+];
 
 const queryInput = ref(String(route.query.q || ''));
 const currentQuery = ref(String(route.query.q || ''));
 const results = ref<SearchResponse | null>(null);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
+const copiedKey = ref<string | null>(null);
 
 const executeSearch = async (query: string) => {
   if (!query.trim()) return;
@@ -69,19 +216,51 @@ const executeSearch = async (query: string) => {
     const res = await quranApi.searchQuran(query);
     results.value = res;
   } catch (err: any) {
-    error.value = 'Gagal melakukan pencarian.';
+    error.value = 'Gagal melakukan pencarian. Silakan coba kembali sesaat lagi.';
   } finally {
     isLoading.value = false;
   }
 };
-
-if (currentQuery.value) {
-  executeSearch(currentQuery.value);
-}
 
 const handleSearch = () => {
   if (!queryInput.value.trim()) return;
   router.push({ query: { q: queryInput.value.trim() } });
   executeSearch(queryInput.value.trim());
 };
+
+const selectKeyword = (kw: string) => {
+  queryInput.value = kw;
+  handleSearch();
+};
+
+const handlePlayVerse = (verseKey: string) => {
+  audioPlayer.playVerse(null, verseKey);
+};
+
+const copyVerse = async (item: any) => {
+  const trans = item.translations?.[0]?.text ? stripHtmlTags(item.translations[0].text) : '';
+  const textToCopy = `"${stripHtmlTags(item.text)}"\n\nArtinya: ${trans} (QS. Ayat ${item.verse_key})`;
+  try {
+    await navigator.clipboard.writeText(textToCopy);
+    copiedKey.value = item.verse_key;
+    setTimeout(() => {
+      if (copiedKey.value === item.verse_key) {
+        copiedKey.value = null;
+      }
+    }, 2000);
+  } catch (e) {
+    console.warn('Copy failed:', e);
+  }
+};
+
+const highlightKeyword = (text: string, query: string): string => {
+  if (!query || !query.trim()) return text;
+  const escaped = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(`(${escaped})`, 'gi');
+  return text.replace(regex, '<mark class="bg-primary/20 text-primary font-semibold px-1 rounded">$1</mark>');
+};
+
+if (currentQuery.value) {
+  executeSearch(currentQuery.value);
+}
 </script>

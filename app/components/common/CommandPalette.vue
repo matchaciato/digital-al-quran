@@ -2,7 +2,7 @@
   <Teleport to="body">
     <div
       v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 pt-16 sm:pt-24 backdrop-blur-xs"
+      class="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 pt-16 sm:pt-24 backdrop-blur-xs"
       @click.self="close"
     >
       <div
@@ -14,7 +14,7 @@
             ref="inputRef"
             type="text"
             v-model="query"
-            placeholder="Ketik surah, juz, topik, atau perintah (misal: 'al mulk', 'juz 30', 'dark')..."
+            placeholder="Cari surah, ayat (2:255 atau kahf 10), topik, atau perintah..."
             class="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             @keydown.down.prevent="handleArrowDown"
             @keydown.up.prevent="handleArrowUp"
@@ -45,7 +45,14 @@
             ]"
           >
             <div class="flex items-center gap-2.5 min-w-0">
-              <span class="rounded bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+              <span
+                class="rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                :class="[
+                  item.category === 'Lompat'
+                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold'
+                    : 'bg-muted text-muted-foreground'
+                ]"
+              >
                 {{ item.category }}
               </span>
               <span class="truncate">{{ item.title }}</span>
@@ -61,9 +68,9 @@
           <div class="flex items-center gap-2">
             <span>&uarr;&darr; Navigasi</span>
             <span>&bull;</span>
-            <span>&crarr; Pilih</span>
+            <span>&crarr; Buka</span>
           </div>
-          <span>Pintasan Global: <strong>Cmd+K</strong></span>
+          <span>Pintasan Global: <strong>Cmd+K / Ctrl+K</strong></span>
         </footer>
       </div>
     </div>
@@ -73,6 +80,7 @@
 <script setup lang="ts">
 import { Search } from '@lucide/vue';
 import { useSettingsStore } from '~/stores/useSettingsStore';
+import { ALL_SURAHS } from '~/constants/surahs';
 import { THEMATIC_TOPICS } from '~/constants/topics';
 
 const props = defineProps<{
@@ -92,31 +100,13 @@ const inputRef = ref<HTMLInputElement | null>(null);
 
 interface CommandItem {
   id: string;
-  category: 'Surah' | 'Juz' | 'Topik' | 'Perintah';
+  category: 'Lompat' | 'Surah' | 'Juz' | 'Topik' | 'Perintah';
   title: string;
   meta?: string;
   action: () => void;
 }
 
-const SURAH_DIRECTORY = [
-  { id: 1, name: 'Al-Fatihah', arabic: 'الفاتحة' },
-  { id: 2, name: 'Al-Baqarah', arabic: 'البقرة' },
-  { id: 3, name: 'Ali \'Imran', arabic: 'آل عمران' },
-  { id: 4, name: 'An-Nisa\'', arabic: 'النساء' },
-  { id: 5, name: 'Al-Ma\'idah', arabic: 'المائدة' },
-  { id: 6, name: 'Al-An\'am', arabic: 'الأنعام' },
-  { id: 7, name: 'Al-A\'raf', arabic: 'الأعراف' },
-  { id: 18, name: 'Al-Kahf', arabic: 'الكهف' },
-  { id: 36, name: 'Yasin', arabic: 'يس' },
-  { id: 55, name: 'Ar-Rahman', arabic: 'الرحمن' },
-  { id: 56, name: 'Al-Waqi\'ah', arabic: 'الواقعة' },
-  { id: 67, name: 'Al-Mulk', arabic: 'الملك' },
-  { id: 112, name: 'Al-Ikhlas', arabic: 'الإخلاص' },
-  { id: 113, name: 'Al-Falaq', arabic: 'الفلق' },
-  { id: 114, name: 'An-Nas', arabic: 'الناس' }
-];
-
-const allCommands = computed<CommandItem[]>(() => {
+const baseCommands = computed<CommandItem[]>(() => {
   const list: CommandItem[] = [];
 
   list.push({
@@ -144,10 +134,18 @@ const allCommands = computed<CommandItem[]>(() => {
   });
 
   list.push({
+    id: 'cmd-search',
+    category: 'Perintah',
+    title: 'Buka Halaman Pencarian Kata Kunci',
+    meta: 'Cari',
+    action: () => router.push('/search')
+  });
+
+  list.push({
     id: 'cmd-tadabbur',
     category: 'Perintah',
-    title: 'Buka Studio Tadabbur & Jurnal',
-    meta: 'Halaman',
+    title: 'Buka Studio Tadabbur & Jurnal Refleksi',
+    meta: 'Jurnal',
     action: () => router.push('/bookmark')
   });
 
@@ -162,22 +160,24 @@ const allCommands = computed<CommandItem[]>(() => {
     });
   }
 
-  for (const s of SURAH_DIRECTORY) {
+  // All 114 Surahs
+  for (const s of ALL_SURAHS) {
     list.push({
       id: `surah-${s.id}`,
       category: 'Surah',
-      title: `Surah ${s.id}. ${s.name}`,
+      title: `Surah ${s.id}. ${s.name} (${s.meaning})`,
       meta: s.arabic,
       action: () => router.push(`/surah/${s.id}`)
     });
   }
 
+  // 30 Juz
   for (let j = 1; j <= 30; j++) {
     list.push({
       id: `juz-${j}`,
       category: 'Juz',
       title: `Juz ${j}`,
-      meta: '30 Juz Al-Qur\'an',
+      meta: '30 Juz',
       action: () => router.push(`/juz/${j}`)
     });
   }
@@ -185,13 +185,72 @@ const allCommands = computed<CommandItem[]>(() => {
   return list;
 });
 
+// Smart jump parser: e.g. "2:255", "18:10", "kahf 10", "al baqarah 255"
+const parseSmartJump = (rawQuery: string): CommandItem | null => {
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return null;
+
+  // Pattern 1: numbers like "2:255" or "18 10"
+  const colonMatch = q.match(/^(\d{1,3})[:\s]+(\d{1,3})$/);
+  if (colonMatch) {
+    const sId = Number(colonMatch[1]);
+    const aId = Number(colonMatch[2]);
+    const foundSurah = ALL_SURAHS.find(s => s.id === sId);
+    if (foundSurah && aId <= foundSurah.totalVerses) {
+      return {
+        id: `jump-${sId}-${aId}`,
+        category: 'Lompat',
+        title: `Lompat ke QS. ${foundSurah.name} : Ayat ${aId}`,
+        meta: `Ayat ${sId}:${aId}`,
+        action: () => router.push(`/surah/${sId}#verse-${sId}:${aId}`)
+      };
+    }
+  }
+
+  // Pattern 2: surah name followed by verse number (e.g. "kahf 10", "baqarah 255", "al-fatihah 5")
+  const nameMatch = q.match(/^([a-z\s'-]+?)\s+(\d{1,3})$/);
+  if (nameMatch) {
+    const namePart = nameMatch[1]?.trim() || '';
+    const aId = Number(nameMatch[2]);
+    const cleanName = namePart.replace(/^(surah|qs|surat)\s+/i, '').replace(/[^a-z]/g, '');
+    if (cleanName.length >= 2) {
+      const foundSurah = ALL_SURAHS.find(s => {
+        const sClean = s.name.toLowerCase().replace(/[^a-z]/g, '');
+        return sClean.includes(cleanName) || cleanName.includes(sClean);
+      });
+      if (foundSurah && aId <= foundSurah.totalVerses) {
+        return {
+          id: `jump-${foundSurah.id}-${aId}`,
+          category: 'Lompat',
+          title: `Lompat ke QS. ${foundSurah.name} : Ayat ${aId}`,
+          meta: `Ayat ${foundSurah.id}:${aId}`,
+          action: () => router.push(`/surah/${foundSurah.id}#verse-${foundSurah.id}:${aId}`)
+        };
+      }
+    }
+  }
+
+  return null;
+};
+
 const filteredItems = computed(() => {
   const q = query.value.toLowerCase().trim();
-  if (!q) return allCommands.value.slice(0, 15);
+  const list: CommandItem[] = [];
 
-  return allCommands.value
-    .filter(item => item.title.toLowerCase().includes(q) || (item.meta && item.meta.toLowerCase().includes(q)))
-    .slice(0, 20);
+  const jumpItem = parseSmartJump(query.value);
+  if (jumpItem) {
+    list.push(jumpItem);
+  }
+
+  if (!q) {
+    return [...list, ...baseCommands.value.slice(0, 15)];
+  }
+
+  const matches = baseCommands.value.filter(item => {
+    return item.title.toLowerCase().includes(q) || (item.meta && item.meta.toLowerCase().includes(q));
+  });
+
+  return [...list, ...matches].slice(0, 25);
 });
 
 watch(() => props.isOpen, (open) => {

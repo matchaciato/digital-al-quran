@@ -203,6 +203,12 @@ const { data: versesData, pending: pendingVerses, error: errorVerses } = await u
   }
 );
 
+watch(() => versesData.value?.verses, (newVerses) => {
+  if (newVerses && newVerses.length > 0) {
+    audioStore.setVersesList(newVerses);
+  }
+}, { immediate: true });
+
 const isPlayingFullSurah = computed(() => {
   return audioStore.currentChapterId === chapterId.value && audioStore.isPlaying && !audioStore.currentVerseKey;
 });
@@ -238,8 +244,4 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
-
-onUnmounted(() => {
-  audioPlayer.closePlayer();
-});
 </script>

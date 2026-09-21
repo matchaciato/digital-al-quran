@@ -2,11 +2,13 @@
   <div class="min-h-screen bg-background text-foreground flex flex-col transition-colors">
     <AppHeader @open-command="shortcuts.openCommandPalette()" />
 
-    <main class="flex-1 w-full">
+    <main class="flex-1 w-full pb-16 md:pb-0">
       <slot />
     </main>
 
     <QuranAudioPlayerBar />
+
+    <CommonMobileBottomNav />
 
     <QuranSettingsDrawer
       :is-open="settings.isSettingsOpen"

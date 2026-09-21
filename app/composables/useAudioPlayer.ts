@@ -1,5 +1,6 @@
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useSettingsStore } from '~/stores/useSettingsStore';
+import { useHifzLoop } from '~/composables/useHifzLoop';
 import { resolveVerseAudioUrl } from '~/utils/audioUrlResolver';
 
 let audioElement: HTMLAudioElement | null = null;
@@ -7,6 +8,7 @@ let audioElement: HTMLAudioElement | null = null;
 export function useAudioPlayer() {
   const audioStore = useAudioStore();
   const settings = useSettingsStore();
+  const hifz = useHifzLoop();
 
   const getAudioElement = (): HTMLAudioElement => {
     if (!audioElement && import.meta.client) {
@@ -47,16 +49,33 @@ export function useAudioPlayer() {
     });
 
     audio.addEventListener('ended', () => {
+      // 1. Check if Hifz Loop is active
+      if (audioStore.isHifzActive) {
+        const handled = hifz.handleVerseEnded((url, verseKey) => {
+          playVerse(url, verseKey);
+        });
+        if (handled) return;
+      }
+
+      // 2. Check if Single Verse Looping is active
       if (audioStore.isLooping && audioStore.currentVerseKey) {
         audio.currentTime = 0;
         audio.play().catch(e => console.warn(e));
         audioStore.setPlaybackStatus(true);
-      } else {
-        if (audio.duration) {
-          audioStore.updateTime(audio.duration, audio.duration);
-        }
-        audioStore.setPlaybackStatus(false);
+        return;
       }
+
+      // 3. Check if Continuous Auto-Advance is enabled
+      if (audioStore.isAutoAdvance) {
+        const playedNext = playNextVerse();
+        if (playedNext) return;
+      }
+
+      // Default: Audio finished
+      if (audio.duration) {
+        audioStore.updateTime(audio.duration, audio.duration);
+      }
+      audioStore.setPlaybackStatus(false);
     });
 
     audio.addEventListener('error', (e) => {
@@ -82,7 +101,12 @@ export function useAudioPlayer() {
 
   const scrollToVerse = (verseKey: string) => {
     if (!import.meta.client) return;
-    const element = document.getElementById(`verse-${verseKey}`);
+    const element =
+      document.getElementById(`verse-${verseKey}`) ||
+      document.getElementById(`mushaf-verse-${verseKey}`) ||
+      document.getElementById(`zen-verse-${verseKey}`) ||
+      document.getElementById(`parallel-verse-${verseKey}`);
+
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
@@ -106,6 +130,8 @@ export function useAudioPlayer() {
     }
 
     audioStore.setActiveVerseKey(verseKey);
+    scrollToVerse(verseKey);
+
     try {
       await audio.play();
       audioStore.setPlaybackStatus(true);
@@ -126,6 +152,36 @@ export function useAudioPlayer() {
         }
       }
     }
+  };
+
+  const playNextVerse = (): boolean => {
+    if (!audioStore.currentVerseKey || audioStore.versesList.length === 0) return false;
+    const currentIndex = audioStore.versesList.findIndex(
+      (v) => v.verse_key === audioStore.currentVerseKey
+    );
+    if (currentIndex !== -1 && currentIndex + 1 < audioStore.versesList.length) {
+      const next = audioStore.versesList[currentIndex + 1];
+      if (next) {
+        playVerse(next.audio?.url, next.verse_key);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const playPreviousVerse = (): boolean => {
+    if (!audioStore.currentVerseKey || audioStore.versesList.length === 0) return false;
+    const currentIndex = audioStore.versesList.findIndex(
+      (v) => v.verse_key === audioStore.currentVerseKey
+    );
+    if (currentIndex > 0) {
+      const prev = audioStore.versesList[currentIndex - 1];
+      if (prev) {
+        playVerse(prev.audio?.url, prev.verse_key);
+        return true;
+      }
+    }
+    return false;
   };
 
   const togglePlayPause = async () => {
@@ -150,6 +206,10 @@ export function useAudioPlayer() {
     if (audio) {
       audio.loop = audioStore.isLooping;
     }
+  };
+
+  const toggleAutoAdvance = () => {
+    audioStore.toggleAutoAdvance();
   };
 
   const stopAudio = () => {
@@ -209,8 +269,11 @@ export function useAudioPlayer() {
 
   return {
     playVerse,
+    playNextVerse,
+    playPreviousVerse,
     togglePlayPause,
     toggleLoop,
+    toggleAutoAdvance,
     stopAudio,
     closePlayer,
     seekTo,

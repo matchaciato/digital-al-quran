@@ -164,6 +164,12 @@ const { data, pending, error } = await useAsyncData(
   }
 );
 
+watch(() => data.value?.verses, (newVerses) => {
+  if (newVerses && newVerses.length > 0) {
+    audioStore.setVersesList(newVerses);
+  }
+}, { immediate: true });
+
 const handleOpenTafsir = (verseKey: string) => {
   selectedTafsirVerseKey.value = verseKey;
   isTafsirOpen.value = true;
@@ -174,8 +180,4 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
-
-onUnmounted(() => {
-  audioPlayer.closePlayer();
-});
 </script>

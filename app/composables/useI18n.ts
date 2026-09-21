@@ -18,6 +18,7 @@ export interface Translations {
   pause: string;
   tafsir: string;
   bookmark: string;
+  bookmarked: string;
   lastRead: string;
   copy: string;
   copied: string;
@@ -46,6 +47,7 @@ const MESSAGES: Record<AppLocale, Translations> = {
     pause: 'Jeda',
     tafsir: 'Tafsir',
     bookmark: 'Tandai',
+    bookmarked: 'Ditandai',
     lastRead: 'Terakhir Dibaca',
     copy: 'Salin',
     copied: 'Disalin!',
@@ -72,6 +74,7 @@ const MESSAGES: Record<AppLocale, Translations> = {
     pause: 'Pause',
     tafsir: 'Exegesis (Tafsir)',
     bookmark: 'Bookmark',
+    bookmarked: 'Bookmarked',
     lastRead: 'Last Read',
     copy: 'Copy',
     copied: 'Copied!',
@@ -98,6 +101,7 @@ const MESSAGES: Record<AppLocale, Translations> = {
     pause: 'إيقاف مؤقت',
     tafsir: 'التفسير',
     bookmark: 'حفظ العلامة',
+    bookmarked: 'تم الحفظ',
     lastRead: 'آخر قراءة',
     copy: 'نسخ',
     copied: 'تم النسخ!',
@@ -110,11 +114,33 @@ const MESSAGES: Record<AppLocale, Translations> = {
   }
 };
 
+const KEY_ALIAS_MAP: Record<string, keyof Translations> = {
+  'nav.surah': 'navSurah',
+  'nav.juz': 'navJuz',
+  'nav.topics': 'navTopics',
+  'nav.search': 'navSearch',
+  'nav.tadabbur': 'navTadabbur',
+  'reader.play': 'play',
+  'reader.pause': 'pause',
+  'reader.tafsir': 'tafsir',
+  'reader.bookmark': 'bookmark',
+  'reader.bookmarked': 'bookmarked',
+  'reader.copy': 'copy',
+  'reader.copied': 'copied',
+  'settings.title': 'settingsTitle',
+  'settings.mode': 'readingMode'
+};
+
 export const useI18n = () => {
   const currentLocale = useLocalStorage<AppLocale>('quran_app_locale', 'id');
 
   const isRTL = computed(() => currentLocale.value === 'ar');
-  const t = computed(() => MESSAGES[currentLocale.value] || MESSAGES.id);
+
+  const translate = (key: string): string => {
+    const localeMsgs = MESSAGES[currentLocale.value] || MESSAGES.id;
+    const resolvedKey = KEY_ALIAS_MAP[key] || (key as keyof Translations);
+    return (localeMsgs as any)[resolvedKey] || key;
+  };
 
   if (import.meta.client) {
     watch(currentLocale, (locale) => {
@@ -130,7 +156,7 @@ export const useI18n = () => {
   return {
     currentLocale,
     isRTL,
-    t,
+    t: translate,
     setLocale
   };
 };

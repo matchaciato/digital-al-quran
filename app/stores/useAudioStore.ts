@@ -13,12 +13,29 @@ export const useAudioStore = defineStore('audio', () => {
   const isLooping = ref(false);
   const audioFile = ref<AudioFile | null>(null);
   const versesList = ref<Verse[]>([]);
+  const isAutoAdvance = ref(true);
+
+  // Hifz Loop State
+  const isHifzActive = ref(false);
+  const hifzStartVerseKey = ref('1:1');
+  const hifzEndVerseKey = ref('1:7');
+  const hifzRepeatCount = ref(3);
+  const hifzCurrentRepeat = ref(1);
+  const hifzPauseGapSeconds = ref(2);
+  const isHifzWaitingGap = ref(false);
+  const hifzGapCountdown = ref(0);
 
   const setAudioSource = (url: string, chapterId: number, verses: Verse[] = [], fileInfo: AudioFile | null = null) => {
     audioUrl.value = url;
     currentChapterId.value = chapterId;
-    versesList.value = verses;
+    if (verses.length > 0) {
+      versesList.value = verses;
+    }
     audioFile.value = fileInfo;
+  };
+
+  const setVersesList = (verses: Verse[]) => {
+    versesList.value = verses;
   };
 
   const setActiveVerseKey = (key: string | null) => {
@@ -48,6 +65,40 @@ export const useAudioStore = defineStore('audio', () => {
     isLooping.value = !isLooping.value;
   };
 
+  const toggleAutoAdvance = () => {
+    isAutoAdvance.value = !isAutoAdvance.value;
+  };
+
+  const setAutoAdvance = (val: boolean) => {
+    isAutoAdvance.value = val;
+  };
+
+  const startHifz = (startKey: string, endKey: string, repeat: number, gap: number) => {
+    isHifzActive.value = true;
+    hifzStartVerseKey.value = startKey;
+    hifzEndVerseKey.value = endKey;
+    hifzRepeatCount.value = Math.max(1, repeat);
+    hifzCurrentRepeat.value = 1;
+    hifzPauseGapSeconds.value = Math.max(0, gap);
+    isHifzWaitingGap.value = false;
+    hifzGapCountdown.value = 0;
+  };
+
+  const stopHifz = () => {
+    isHifzActive.value = false;
+    isHifzWaitingGap.value = false;
+    hifzGapCountdown.value = 0;
+  };
+
+  const setHifzProgress = (current: number) => {
+    hifzCurrentRepeat.value = current;
+  };
+
+  const setHifzWaitingGap = (waiting: boolean, countdown = 0) => {
+    isHifzWaitingGap.value = waiting;
+    hifzGapCountdown.value = countdown;
+  };
+
   const reset = () => {
     isPlaying.value = false;
     currentChapterId.value = null;
@@ -57,6 +108,8 @@ export const useAudioStore = defineStore('audio', () => {
     duration.value = 0;
     audioFile.value = null;
     versesList.value = [];
+    isHifzActive.value = false;
+    isHifzWaitingGap.value = false;
   };
 
   return {
@@ -71,13 +124,29 @@ export const useAudioStore = defineStore('audio', () => {
     isLooping,
     audioFile,
     versesList,
+    isAutoAdvance,
+    isHifzActive,
+    hifzStartVerseKey,
+    hifzEndVerseKey,
+    hifzRepeatCount,
+    hifzCurrentRepeat,
+    hifzPauseGapSeconds,
+    isHifzWaitingGap,
+    hifzGapCountdown,
     setAudioSource,
+    setVersesList,
     setActiveVerseKey,
     setPlaybackStatus,
     updateTime,
     setVolume,
     setPlaybackRate,
     toggleLoop,
+    toggleAutoAdvance,
+    setAutoAdvance,
+    startHifz,
+    stopHifz,
+    setHifzProgress,
+    setHifzWaitingGap,
     reset
   };
 });

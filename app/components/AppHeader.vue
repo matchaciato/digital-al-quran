@@ -72,18 +72,20 @@
 <script lang="ts" setup>
 import { Search, Moon, Sun } from "@lucide/vue";
 import { useSettingsStore } from "~/stores/useSettingsStore";
+import { useI18n } from "~/composables/useI18n";
 
 defineEmits<{
   (e: 'openCommand'): void;
 }>();
 
 const settings = useSettingsStore();
+const { t } = useI18n();
 
-const navigations = [
-  { name: "Surah", href: "/" },
-  { name: "Juz", href: "/juz/1" },
-  { name: "Topik", href: "/topics" },
-  { name: "Pencarian", href: "/search" },
-  { name: "Tadabbur", href: "/bookmark" },
-];
+const navigations = computed(() => [
+  { name: t('nav.surah'), href: "/" },
+  { name: t('nav.juz'), href: "/juz/1" },
+  { name: t('nav.topics'), href: "/topics" },
+  { name: t('nav.search'), href: "/search" },
+  { name: t('nav.tadabbur'), href: "/bookmark" },
+]);
 </script>

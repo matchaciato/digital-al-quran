@@ -52,7 +52,7 @@ export function useQuranApi() {
     const {
       language = QURAN_API.DEFAULT_LANGUAGE,
       words = true,
-      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID],
+      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID, 131],
       reciterId = QURAN_API.DEFAULT_RECITER_ID,
       page = 1,
       perPage = QURAN_API.DEFAULT_PER_PAGE
@@ -64,7 +64,7 @@ export function useQuranApi() {
       translations: translationIds.join(','),
       audio: reciterId,
       fields: 'text_uthmani,verse_key,verse_number,page_number,juz_number',
-      word_fields: 'text_uthmani,location,text_indonesian',
+      word_fields: 'text_uthmani,location,text_indonesian,audio_url',
       page: Math.max(1, page),
       per_page: Math.min(QURAN_API.MAX_PER_PAGE, Math.max(1, perPage))
     });
@@ -75,7 +75,7 @@ export function useQuranApi() {
     const {
       language = QURAN_API.DEFAULT_LANGUAGE,
       words = true,
-      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID],
+      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID, 131],
       reciterId = QURAN_API.DEFAULT_RECITER_ID,
       page = 1,
       perPage = QURAN_API.DEFAULT_PER_PAGE
@@ -87,7 +87,7 @@ export function useQuranApi() {
       translations: translationIds.join(','),
       audio: reciterId,
       fields: 'text_uthmani,verse_key,verse_number,page_number,juz_number',
-      word_fields: 'text_uthmani,location,text_indonesian',
+      word_fields: 'text_uthmani,location,text_indonesian,audio_url',
       page: Math.max(1, page),
       per_page: Math.min(QURAN_API.MAX_PER_PAGE, Math.max(1, perPage))
     });
@@ -98,7 +98,7 @@ export function useQuranApi() {
     const {
       language = QURAN_API.DEFAULT_LANGUAGE,
       words = true,
-      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID],
+      translationIds = [QURAN_API.DEFAULT_TRANSLATION_ID, 131],
       reciterId = QURAN_API.DEFAULT_RECITER_ID,
       page = 1,
       perPage = QURAN_API.DEFAULT_PER_PAGE
@@ -110,7 +110,7 @@ export function useQuranApi() {
       translations: translationIds.join(','),
       audio: reciterId,
       fields: 'text_uthmani,verse_key,verse_number,page_number,juz_number',
-      word_fields: 'text_uthmani,location,text_indonesian',
+      word_fields: 'text_uthmani,location,text_indonesian,audio_url',
       page: Math.max(1, page),
       per_page: Math.min(QURAN_API.MAX_PER_PAGE, Math.max(1, perPage))
     });

@@ -52,45 +52,76 @@ export function generateAyatCardBlob(options: CardOptions): Promise<string> {
     ctx.lineWidth = 4;
     ctx.strokeRect(60, 60, width - 120, height - 120);
 
+    // Header Title
     ctx.textAlign = 'center';
     ctx.fillStyle = accentColor;
-    ctx.font = 'bold 28px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText(`QS. ${options.surahName.toUpperCase()} : ${options.verseNumber}`, width / 2, options.ratio === '1:1' ? 160 : 260);
+    ctx.font = 'bold 26px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    const headerY = options.ratio === '1:1' ? 140 : 240;
+    ctx.fillText(`QS. ${options.surahName.toUpperCase()} : ${options.verseNumber}`, width / 2, headerY);
+
+    // Dynamic Font Auto-Scaling
+    const arabicLen = options.arabicText.length;
+    let arabicFontSize = 50;
+    let arabicLineHeight = 88;
+
+    if (arabicLen > 250) {
+      arabicFontSize = 32;
+      arabicLineHeight = 58;
+    } else if (arabicLen > 140) {
+      arabicFontSize = 40;
+      arabicLineHeight = 72;
+    }
 
     ctx.fillStyle = textColor;
-    ctx.font = '52px "Noto Naskh Arabic", "Traditional Arabic", serif';
+    ctx.font = `${arabicFontSize}px "Noto Naskh Arabic", "Traditional Arabic", serif`;
     ctx.direction = 'rtl';
-    
+
     const arabicLines = wrapText(ctx, options.arabicText, width - 240);
-    const startArabicY = options.ratio === '1:1' ? 320 : 540;
-    const arabicLineHeight = 90;
+    const startArabicY = options.ratio === '1:1'
+      ? Math.max(220, 260 - (arabicLines.length > 3 ? (arabicLines.length - 3) * 20 : 0))
+      : 480;
 
     arabicLines.forEach((line, index) => {
       ctx.fillText(line, width / 2, startArabicY + (index * arabicLineHeight));
     });
 
+    // Divider Line
     ctx.direction = 'ltr';
-    const dividerY = startArabicY + (arabicLines.length * arabicLineHeight) + 40;
+    const dividerY = startArabicY + (arabicLines.length * arabicLineHeight) + 30;
     ctx.strokeStyle = accentColor;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.moveTo(width / 2 - 80, dividerY);
     ctx.lineTo(width / 2 + 80, dividerY);
     ctx.stroke();
 
-    ctx.fillStyle = subTextColor;
-    ctx.font = 'italic 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    const translationLines = wrapText(ctx, `"${options.translationText}"`, width - 260);
-    const startTransY = dividerY + 70;
-    const transLineHeight = 52;
+    // Translation Dynamic Sizing
+    const transLen = options.translationText.length;
+    let transFontSize = 30;
+    let transLineHeight = 50;
 
-    translationLines.slice(0, 8).forEach((line, index) => {
+    if (transLen > 300) {
+      transFontSize = 20;
+      transLineHeight = 36;
+    } else if (transLen > 180) {
+      transFontSize = 25;
+      transLineHeight = 44;
+    }
+
+    ctx.fillStyle = subTextColor;
+    ctx.font = `italic ${transFontSize}px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+    const translationLines = wrapText(ctx, `"${options.translationText}"`, width - 260);
+    const startTransY = dividerY + 55;
+
+    const maxTransLines = options.ratio === '1:1' ? 8 : 12;
+    translationLines.slice(0, maxTransLines).forEach((line, index) => {
       ctx.fillText(line, width / 2, startTransY + (index * transLineHeight));
     });
 
+    // Footer Branding
     ctx.fillStyle = subTextColor;
-    ctx.font = '22px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-    ctx.fillText('Digital Al-Qur\'an', width / 2, height - (options.ratio === '1:1' ? 120 : 160));
+    ctx.font = '20px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+    ctx.fillText('Digital Al-Qur\'an', width / 2, height - (options.ratio === '1:1' ? 100 : 140));
 
     resolve(canvas.toDataURL('image/png'));
   });
@@ -103,14 +134,17 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 
   for (let i = 1; i < words.length; i++) {
     const word = words[i];
-    const width = ctx.measureText(currentLine + ' ' + word).width;
-    if (width < maxWidth) {
-      currentLine += ' ' + word;
-    } else {
+    const testLine = `${currentLine} ${word}`;
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth) {
       lines.push(currentLine);
       currentLine = word || '';
+    } else {
+      currentLine = testLine;
     }
   }
-  lines.push(currentLine);
+  if (currentLine) {
+    lines.push(currentLine);
+  }
   return lines;
 }

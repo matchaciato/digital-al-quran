@@ -32,8 +32,8 @@ export const useBookmarkStore = defineStore('bookmark', () => {
     }
   };
 
-  const removeBookmark = (id: string) => {
-    bookmarks.value = bookmarks.value.filter(b => b.id !== id);
+  const removeBookmark = (idOrKey: string) => {
+    bookmarks.value = bookmarks.value.filter(b => b.id !== idOrKey && b.verseKey !== idOrKey);
   };
 
   const isBookmarked = (verseKey: string): boolean => {
