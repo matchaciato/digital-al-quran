@@ -122,3 +122,23 @@ export const ALL_SURAHS: SurahMeta[] = [
   { id: 113, name: 'Al-Falaq', arabic: 'الفلق', totalVerses: 5, meaning: 'Waktu Subuh' },
   { id: 114, name: 'An-Nas', arabic: 'الناس', totalVerses: 6, meaning: 'Manusia' }
 ];
+
+const surahMap = new Map<number, SurahMeta>(ALL_SURAHS.map(s => [s.id, s]));
+
+/**
+ * Returns Surah metadata by its ID (1 - 114) in O(1) time complexity.
+ */
+export function getSurahById(id: number): SurahMeta | undefined {
+  return surahMap.get(id);
+}
+
+/**
+ * Resolves a Surah's display name from either an ID number or a verse key (e.g. '2:255').
+ */
+export function getSurahName(idOrVerseKey: number | string, fallback = ''): string {
+  if (typeof idOrVerseKey === 'number') {
+    return surahMap.get(idOrVerseKey)?.name ?? fallback;
+  }
+  const chapterId = Number(idOrVerseKey.split(':')[0]);
+  return surahMap.get(chapterId)?.name ?? fallback;
+}

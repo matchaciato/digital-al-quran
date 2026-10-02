@@ -166,7 +166,18 @@ import { useAudioPlayer } from '~/composables/useAudioPlayer';
 import type { Word } from '~/types/quran';
 
 const route = useRoute();
-const chapterId = computed(() => Number(route.params.id) || 1);
+const rawChapterId = Number(route.params.id);
+
+// Fail-fast boundary validation (Defensive Programming)
+if (isNaN(rawChapterId) || rawChapterId < 1 || rawChapterId > 114) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Surah ${route.params.id} tidak ditemukan. Al-Qur'an terdiri dari Surah 1 hingga 114.`,
+    fatal: true
+  });
+}
+
+const chapterId = computed(() => rawChapterId);
 
 const quranApi = useQuranApi();
 const settings = useSettingsStore();
@@ -189,7 +200,17 @@ const modes = [
 
 const { data: chapterData, pending: pendingChapter, error: errorChapter } = await useAsyncData(
   () => `chapter-${chapterId.value}`,
-  () => quranApi.getChapter(chapterId.value)
+  async () => {
+    const res = await quranApi.getChapter(chapterId.value);
+    if (!res?.chapter) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `Data Surah ${chapterId.value} tidak ditemukan.`,
+        fatal: true
+      });
+    }
+    return res;
+  }
 );
 
 const { data: versesData, pending: pendingVerses, error: errorVerses } = await useAsyncData(

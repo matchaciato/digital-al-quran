@@ -85,9 +85,17 @@
 import { THEMATIC_TOPICS } from '~/constants/topics';
 
 const route = useRoute();
-const slug = computed(() => route.params.slug as string);
+const currentSlug = String(route.params.slug || '');
+const currentTopic = THEMATIC_TOPICS.find(t => t.slug === currentSlug);
 
-const topic = computed(() => {
-  return THEMATIC_TOPICS.find(t => t.slug === slug.value) || null;
-});
+// Fail-fast route validation (Defensive Programming)
+if (!currentTopic) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Topik kajian "${currentSlug}" tidak ditemukan.`,
+    fatal: true
+  });
+}
+
+const topic = computed(() => currentTopic);
 </script>

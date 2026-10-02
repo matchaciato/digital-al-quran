@@ -79,7 +79,7 @@
           v-for="verse in data.verses"
           :key="verse.id"
           :verse="verse"
-          :surah-name="`Juz ${juzId}`"
+          :surah-name="getSurahName(verse.verse_key, `Juz ${juzId}`)"
           :chapter-id="Number(verse.verse_key.split(':')[0])"
           @open-tafsir="handleOpenTafsir"
           @inspect-word="handleInspectWord"
@@ -129,14 +129,28 @@
 <script setup lang="ts">
 import { useQuranApi } from '~/composables/useQuranApi';
 import { useSettingsStore } from '~/stores/useSettingsStore';
+import { useAudioStore } from '~/stores/useAudioStore';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
+import { getSurahName } from '~/constants/surahs';
 import type { Word } from '~/types/quran';
 
 const route = useRoute();
-const juzId = computed(() => Number(route.params.id) || 1);
+const rawJuzId = Number(route.params.id);
+
+// Fail-fast boundary validation (Defensive Programming)
+if (isNaN(rawJuzId) || rawJuzId < 1 || rawJuzId > 30) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: `Juz ${route.params.id} tidak ditemukan. Al-Qur'an terdiri dari Juz 1 hingga 30.`,
+    fatal: true
+  });
+}
+
+const juzId = computed(() => rawJuzId);
 
 const quranApi = useQuranApi();
 const settings = useSettingsStore();
+const audioStore = useAudioStore();
 const audioPlayer = useAudioPlayer();
 
 const isTafsirOpen = ref(false);
