@@ -52,4 +52,13 @@
 
 <script setup lang="ts">
 import { THEMATIC_TOPICS } from '~/constants/topics';
+
+useSeoMeta({
+  title: 'Pohon Tematik & Kajian Topik Al-Qur\'an — Al-Qur\'an Digital',
+  description: 'Jelajahi ayat-ayat Al-Qur\'an berdasarkan tema esensial: ketenangan hati, sabar dan syukur, kepemimpinan, sains & alam semesta, hingga kisah para nabi.',
+  ogTitle: 'Pohon Tematik & Kajian Topik Al-Qur\'an',
+  ogDescription: 'Koleksi tematik ayat-ayat Al-Qur\'an lintas surah dengan transliterasi, terjemahan, dan audio tilawah.',
+  ogType: 'website',
+  twitterCard: 'summary_large_image'
+});
 </script>

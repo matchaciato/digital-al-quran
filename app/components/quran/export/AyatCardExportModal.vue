@@ -149,6 +149,7 @@
 
 <script setup lang="ts">
 import { X, Download } from '@lucide/vue';
+import { useEventListener } from '@vueuse/core';
 import { generateAyatCardBlob, type CardRatio, type CardTheme } from '~/utils/exportCanvas';
 import { stripHtmlTags } from '~/utils/quranValidation';
 import type { Verse } from '~/types/quran';

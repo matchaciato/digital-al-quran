@@ -144,6 +144,7 @@
 
 <script setup lang="ts">
 import { X, Volume2 } from '@lucide/vue';
+import { useEventListener } from '@vueuse/core';
 import { useMorphology } from '~/composables/useMorphology';
 import type { Word } from '~/types/quran';
 import type { WordMorphology } from '~/types/morphology';

@@ -263,4 +263,24 @@ const highlightKeyword = (text: string, query: string): string => {
 if (currentQuery.value) {
   executeSearch(currentQuery.value);
 }
+
+useSeoMeta({
+  title: () => {
+    return currentQuery.value
+      ? `Hasil Pencarian "${currentQuery.value}" — Al-Qur'an Digital`
+      : 'Pencarian Ayat & Terjemahan — Al-Qur\'an Digital';
+  },
+  description: () => {
+    return currentQuery.value
+      ? `Hasil pencarian ayat Al-Qur'an dan terjemahan untuk kata kunci "${currentQuery.value}". Temukan ayat terkait dengan mudah.`
+      : 'Cari ayat, kata kunci, terjemahan, dan tafsir Al-Qur\'an secara cepat dan akurat.';
+  },
+  ogTitle: () => {
+    return currentQuery.value
+      ? `Pencarian "${currentQuery.value}" — Al-Qur'an Digital`
+      : 'Pencarian Al-Qur\'an Digital';
+  },
+  ogDescription: 'Cari ayat Al-Qur\'an dengan teks Arab, latin, atau terjemahan bahasa Indonesia.',
+  ogType: 'website'
+});
 </script>

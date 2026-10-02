@@ -93,6 +93,34 @@ export default defineNuxtConfig({
               statuses: [0, 200]
             }
           }
+        },
+        {
+          urlPattern: /^https:\/\/verses\.quran\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'quran-verses-audio-cache',
+            expiration: {
+              maxEntries: 200,
+              maxAgeSeconds: 60 * 60 * 24 * 30
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /\.(?:woff2|woff|ttf|otf|eot)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'quran-local-fonts-cache',
+            expiration: {
+              maxEntries: 30,
+              maxAgeSeconds: 60 * 60 * 24 * 365
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
         }
       ]
     },

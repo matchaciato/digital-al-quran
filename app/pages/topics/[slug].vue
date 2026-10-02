@@ -161,4 +161,15 @@ const handleCopyVerse = async (verse: ThematicTopicVerse) => {
     console.error('Gagal menyalin ayat tematik:', err);
   }
 };
+
+if (currentTopic) {
+  useSeoMeta({
+    title: `${currentTopic.title} — Kajian Tematik Al-Qur'an`,
+    description: `${currentTopic.summary} Menampilkan ${currentTopic.verses.length} ayat pilihan bertema ${currentTopic.category} lengkap dengan terjemahan, audio, dan tadabbur.`,
+    ogTitle: `${currentTopic.title} (${currentTopic.arabicTitle})`,
+    ogDescription: currentTopic.summary,
+    ogType: 'article',
+    twitterCard: 'summary_large_image'
+  });
+}
 </script>

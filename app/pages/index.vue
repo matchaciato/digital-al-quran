@@ -205,4 +205,13 @@ const filteredChapters = computed(() => {
     );
   });
 });
+
+useSeoMeta({
+  title: 'Digital Al-Qur\'an — Editorial Typography & Linguistic Anatomy',
+  description: 'Platform Al-Qur\'an Digital modern berkelas dunia dengan tipografi editorial presisi, 4 mode membaca, anatomi morfologi kata, dan audio studio tilawah.',
+  ogTitle: 'Digital Al-Qur\'an — Editorial Typography & Linguistic Anatomy',
+  ogDescription: 'Baca 114 Surah dan 30 Juz Al-Qur\'an dengan kenyamanan tipografi editorial, 4 mode membaca, anatomi akar kata, dan audio murottal.',
+  ogType: 'website',
+  twitterCard: 'summary_large_image'
+});
 </script>

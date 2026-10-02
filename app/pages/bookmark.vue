@@ -375,4 +375,12 @@ const formatDate = (timestamp: number): string => {
     year: 'numeric'
   });
 };
+
+useSeoMeta({
+  title: 'Studio Tadabbur & Penanda Ayat — Al-Qur\'an Digital',
+  description: 'Kelola penanda tilawah Al-Qur\'an, kumpulan ayat favorit, folder tematik pribadi, dan catatan refleksi tadabbur Anda.',
+  ogTitle: 'Studio Tadabbur & Penanda Ayat — Al-Qur\'an Digital',
+  ogDescription: 'Kelola penanda bacaan dan catat hikmah ayat Al-Qur\'an secara aman dan terorganisir.',
+  ogType: 'website'
+});
 </script>

@@ -265,4 +265,33 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
+
+useSeoMeta({
+  title: () => {
+    const ch = chapterData.value?.chapter;
+    return ch
+      ? `Surah ${ch.name_simple} (${ch.translated_name.name}) — Al-Qur'an Digital`
+      : `Surah ${chapterId.value} — Al-Qur'an Digital`;
+  },
+  description: () => {
+    const ch = chapterData.value?.chapter;
+    if (!ch) return 'Baca dan pelajari ayat-ayat Al-Qur\'an.';
+    const place = ch.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah';
+    return `Baca Surah ${ch.name_simple} (${ch.name_arabic}) terdiri dari ${ch.verses_count} ayat. Golongan ${place}. Dilengkapi teks Utsmani, terjemahan Kemenag RI, tafsir komparatif, dan audio tilawah.`;
+  },
+  ogTitle: () => {
+    const ch = chapterData.value?.chapter;
+    return ch
+      ? `Surah ${ch.name_simple} (${ch.name_arabic}) — ${ch.translated_name.name}`
+      : `Surah ${chapterId.value}`;
+  },
+  ogDescription: () => {
+    const ch = chapterData.value?.chapter;
+    return ch
+      ? `Baca Surah ${ch.name_simple} (${ch.verses_count} Ayat) dengan terjemahan resmi, tafsir, dan audio tilawah.`
+      : 'Al-Qur\'an Digital';
+  },
+  ogType: 'article',
+  twitterCard: 'summary_large_image'
+});
 </script>

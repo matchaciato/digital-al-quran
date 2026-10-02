@@ -194,4 +194,13 @@ const handleInspectWord = (word: Word, verseKey: string) => {
   selectedWordVerseKey.value = verseKey;
   isRootExplorerOpen.value = true;
 };
+
+useSeoMeta({
+  title: () => `Al-Qur'an Juz ${juzId.value} — Teks Arab, Terjemahan & Audio`,
+  description: () => `Baca ayat-ayat Al-Qur'an dalam Juz ${juzId.value}. Tersedia 4 mode membaca (Ayat, Mushaf Madinah, Zen, dan Komparasi Terjemahan) serta audio tilawah.`,
+  ogTitle: () => `Al-Qur'an Juz ${juzId.value}`,
+  ogDescription: () => `Baca Al-Qur'an Juz ${juzId.value} dengan tipografi editorial modern dan terjemahan lengkap.`,
+  ogType: 'article',
+  twitterCard: 'summary_large_image'
+});
 </script>
