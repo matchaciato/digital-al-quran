@@ -6,6 +6,9 @@
       @click.self="closeModal"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="root-modal-title"
         class="flex max-h-[90vh] w-full max-w-2xl flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl transition-all"
       >
         <header class="flex items-center justify-between border-b border-border p-5">
@@ -13,7 +16,7 @@
             <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
               Linguistic Anatomy & Root Explorer
             </span>
-            <h2 class="text-lg font-bold text-foreground">
+            <h2 id="root-modal-title" class="text-lg font-bold text-foreground">
               Anatomi Morfologi Kata: "{{ wordData.arabic }}"
             </h2>
           </div>
@@ -165,4 +168,10 @@ const wordData = computed<WordMorphology | null>(() => {
 const closeModal = () => {
   emit('close');
 };
+
+useEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    closeModal();
+  }
+});
 </script>

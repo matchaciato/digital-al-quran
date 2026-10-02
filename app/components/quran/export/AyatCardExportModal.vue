@@ -6,6 +6,9 @@
       @click.self="$emit('close')"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="export-modal-title"
         class="flex max-h-[90vh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
       >
         <header class="flex items-center justify-between border-b border-border p-4 bg-card/50">
@@ -13,7 +16,7 @@
             <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
               Generator Kartu Ayat Tipografis
             </span>
-            <h2 class="text-sm font-bold text-foreground">
+            <h2 id="export-modal-title" class="text-sm font-bold text-foreground">
               QS. {{ surahName }} : {{ verse.verse_number }}
             </h2>
           </div>
@@ -156,9 +159,15 @@ const props = defineProps<{
   surahName: string;
 }>();
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'close'): void;
 }>();
+
+useEventListener('keydown', (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    emit('close');
+  }
+});
 
 const ratio = ref<CardRatio>('1:1');
 const theme = ref<CardTheme>('alabaster');

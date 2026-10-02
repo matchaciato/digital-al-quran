@@ -39,7 +39,12 @@
       <article
         v-for="(verse, idx) in topic.verses"
         :key="verse.verseKey"
-        class="rounded-xl border border-border/70 bg-card p-6 sm:p-7 space-y-5 transition-all hover:border-border"
+        class="rounded-xl border p-6 sm:p-7 space-y-5 transition-all"
+        :class="[
+          isPlayingVerse(verse.verseKey)
+            ? 'border-primary bg-primary/5 shadow-xs ring-1 ring-primary/30'
+            : 'border-border/70 bg-card hover:border-border'
+        ]"
       >
         <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3 text-xs">
           <div class="flex items-center gap-2">
@@ -52,9 +57,32 @@
           </div>
 
           <div class="flex items-center gap-2">
+            <button
+              type="button"
+              @click="handlePlayVerse(verse)"
+              class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors active:scale-95"
+              :class="[
+                isPlayingVerse(verse.verseKey)
+                  ? 'bg-primary text-primary-foreground shadow-2xs'
+                  : 'border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+              ]"
+              :title="isPlayingVerse(verse.verseKey) ? 'Jeda tilawah' : 'Dengarkan tilawah ayat ini'"
+            >
+              <span>{{ isPlayingVerse(verse.verseKey) ? '⏸ Jeda' : '▶ Putar' }}</span>
+            </button>
+
+            <button
+              type="button"
+              @click="handleCopyVerse(verse)"
+              class="rounded-md border border-border px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground font-medium text-xs transition-colors active:scale-95"
+              title="Salin Ayat & Terjemahan"
+            >
+              {{ copiedVerseKey === verse.verseKey ? '✓ Tersalin' : '📋 Salin' }}
+            </button>
+
             <NuxtLink
               :to="`/surah/${verse.surahId}#verse-${verse.verseKey}`"
-              class="rounded-md border border-border px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground font-medium"
+              class="rounded-md border border-border px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground font-medium text-xs"
             >
               Buka di Surah &rarr;
             </NuxtLink>
@@ -82,7 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { THEMATIC_TOPICS } from '~/constants/topics';
+import { THEMATIC_TOPICS, type ThematicTopicVerse } from '~/constants/topics';
+import { useAudioStore } from '~/stores/useAudioStore';
+import { useAudioPlayer } from '~/composables/useAudioPlayer';
 
 const route = useRoute();
 const currentSlug = String(route.params.slug || '');
@@ -98,4 +128,37 @@ if (!currentTopic) {
 }
 
 const topic = computed(() => currentTopic);
+
+const audioStore = useAudioStore();
+const audioPlayer = useAudioPlayer();
+
+const copiedVerseKey = ref<string | null>(null);
+
+const isPlayingVerse = (verseKey: string): boolean => {
+  return audioStore.currentVerseKey === verseKey && audioStore.isPlaying;
+};
+
+const handlePlayVerse = (verse: ThematicTopicVerse) => {
+  if (isPlayingVerse(verse.verseKey)) {
+    audioPlayer.togglePlayPause();
+  } else {
+    audioPlayer.playVerse(undefined, verse.verseKey);
+  }
+};
+
+const handleCopyVerse = async (verse: ThematicTopicVerse) => {
+  if (!import.meta.client) return;
+  const text = `${verse.arabicText}\n\n"${verse.translationText}"\n(QS. ${verse.surahName}: ${verse.verseKey})`;
+  try {
+    await navigator.clipboard.writeText(text);
+    copiedVerseKey.value = verse.verseKey;
+    setTimeout(() => {
+      if (copiedVerseKey.value === verse.verseKey) {
+        copiedVerseKey.value = null;
+      }
+    }, 2000);
+  } catch (err) {
+    console.error('Gagal menyalin ayat tematik:', err);
+  }
+};
 </script>

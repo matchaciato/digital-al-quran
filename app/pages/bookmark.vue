@@ -180,10 +180,16 @@
         </div>
       </div>
 
-      <div v-if="tadabburStore.notes.length === 0" class="rounded-xl border border-dashed border-border p-12 text-center space-y-2">
-        <span class="text-3xl">Catatan</span>
-        <h3 class="text-sm font-bold text-foreground">Belum Ada Catatan Tadabbur</h3>
-        <p class="text-xs text-muted-foreground">Tuliskan refleksi pertama Anda menggunakan form di atas.</p>
+      <div v-if="tadabburStore.notes.length === 0" class="rounded-xl border border-dashed border-border p-12 text-center space-y-3">
+        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+          <BookOpen class="h-6 w-6" />
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-sm font-bold text-foreground">Belum Ada Catatan Tadabbur</h3>
+          <p class="text-xs text-muted-foreground max-w-sm mx-auto">
+            Tuliskan refleksi, mutiara hikmah, atau pemahaman dari ayat yang Anda baca menggunakan formulir di atas.
+          </p>
+        </div>
       </div>
 
       <div v-else class="space-y-4">
@@ -287,22 +293,33 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Trash2 } from '@lucide/vue';
+import { Download, Trash2, BookOpen } from '@lucide/vue';
 import { useBookmarkStore } from '~/stores/useBookmarkStore';
 import { useTadabburStore } from '~/stores/useTadabburStore';
+import { getSurahName } from '~/constants/surahs';
 
 const bookmarkStore = useBookmarkStore();
 const tadabburStore = useTadabburStore();
 
 const activeTab = ref<'bookmarks' | 'tadabbur' | 'folders'>('bookmarks');
 
-const newVerseKey = ref('94:5');
-const newSurahName = ref('Al-Insyirah');
+const newVerseKey = ref('');
+const newSurahName = ref('');
 const newFolderId = ref(tadabburStore.folders[0]?.id || 'f-1');
 const newNoteText = ref('');
 
 const newFolderName = ref('');
 const newFolderDesc = ref('');
+
+// Smart auto-fill: when user types "2:255", automatically resolve "Al-Baqarah"
+watch(newVerseKey, (val) => {
+  if (val && val.includes(':')) {
+    const resolved = getSurahName(val);
+    if (resolved) {
+      newSurahName.value = resolved;
+    }
+  }
+});
 
 const getFolderName = (folderId: string): string => {
   const f = tadabburStore.folders.find(item => item.id === folderId);
@@ -315,15 +332,20 @@ const countNotesInFolder = (folderId: string): number => {
 
 const handleCreateNote = () => {
   if (!newNoteText.value.trim()) return;
-  const surahId = Number(newVerseKey.value.split(':')[0]) || 1;
+  const key = newVerseKey.value.trim() || '1:1';
+  const surahId = Number(key.split(':')[0]) || 1;
+  const sName = newSurahName.value.trim() || getSurahName(key, 'Al-Qur\'an');
+
   tadabburStore.addNote({
-    verseKey: newVerseKey.value.trim(),
-    surahName: newSurahName.value.trim() || 'Al-Quran',
+    verseKey: key,
+    surahName: sName,
     surahId,
-    note: newNoteText.value,
+    note: newNoteText.value.trim(),
     folderId: newFolderId.value
   });
   newNoteText.value = '';
+  newVerseKey.value = '';
+  newSurahName.value = '';
 };
 
 const handleCreateFolder = () => {
