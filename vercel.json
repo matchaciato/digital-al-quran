@@ -1,7 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nuxtjs",
+  "installCommand": "pnpm install",
+  "buildCommand": "pnpm build",
   "ignoreCommand": "node scripts/vercel-ignore.cjs",
+  "cleanUrls": true,
   "github": {
     "silent": true,
     "autoJobCancelation": true
