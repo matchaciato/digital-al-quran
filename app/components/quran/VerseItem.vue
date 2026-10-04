@@ -109,14 +109,14 @@
         <template v-else>
           {{ verse.text_uthmani }}
         </template>
-        <span class="ayah-end-glyph text-primary/80 font-normal select-none px-1">
+        <span class="ayah-end-glyph text-primary font-normal select-none px-1">
           {{ formatAyahGlyph(verse.verse_number) }}
         </span>
       </div>
 
       <!-- Transliteration Latin -->
       <div v-if="settings.showLatin && latinText" class="pt-1">
-        <p class="text-sm font-medium italic text-muted-foreground/90 leading-relaxed">
+        <p class="text-sm font-medium italic text-muted-foreground leading-relaxed">
           {{ latinText }}
         </p>
       </div>

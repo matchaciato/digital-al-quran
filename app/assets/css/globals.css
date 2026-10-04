@@ -75,16 +75,16 @@
   --secondary: oklch(0.95 0.008 85);
   --secondary-foreground: oklch(0.22 0.02 165);
   
-  --muted: oklch(0.95 0.006 85);
-  --muted-foreground: oklch(0.48 0.015 60);
+  --muted: oklch(0.955 0.006 85);
+  --muted-foreground: oklch(0.44 0.015 60);
   
   --accent: oklch(0.93 0.012 165);
   --accent-foreground: oklch(0.25 0.04 165);
   
-  --destructive: oklch(0.58 0.22 25);
-  --border: oklch(0.91 0.008 85);
-  --input: oklch(0.91 0.008 85);
-  --ring: oklch(0.45 0.08 165);
+  --destructive: oklch(0.5 0.2 25);
+  --border: oklch(0.89 0.008 85);
+  --input: oklch(0.72 0.01 85);
+  --ring: oklch(0.45 0.1 165);
 }
 
 .dark {
@@ -104,41 +104,128 @@
   --secondary-foreground: oklch(0.92 0.006 250);
   
   --muted: oklch(0.20 0.008 250);
-  --muted-foreground: oklch(0.65 0.01 250);
+  --muted-foreground: oklch(0.72 0.01 250);
   
   --accent: oklch(0.24 0.02 162);
   --accent-foreground: oklch(0.85 0.10 162);
   
-  --destructive: oklch(0.65 0.20 25);
-  --border: oklch(0.24 0.008 250);
-  --input: oklch(0.24 0.008 250);
-  --ring: oklch(0.65 0.12 162);
+  --destructive: oklch(0.72 0.17 25);
+  --border: oklch(0.28 0.008 250);
+  --input: oklch(0.45 0.01 250);
+  --ring: oklch(0.72 0.13 162);
 }
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
-    font-family: var(--font-sans);
+    @apply border-border;
   }
-  
+
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-primary min-h-screen;
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground min-h-screen;
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.6;
   }
-  
+
+  /* Form controls must inherit the page font, never the browser default. */
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
   [dir="rtl"], [lang="ar"] {
     font-family: var(--font-arabic);
     line-height: 2.4;
     word-spacing: 0.12em;
     letter-spacing: 0;
   }
-  
+
   button {
     @apply cursor-pointer transition-colors duration-150;
   }
+
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+
+  /* One consistent, clearly visible keyboard focus indicator (WCAG 2.4.7). */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 0.25rem;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline-offset: 0;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Visible only when focused: lets keyboard users bypass the header. */
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 100;
+  padding: 0.625rem 1rem;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Shared page rhythm so every screen uses the same width and spacing. */
+.page-container {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 72rem;
+  padding: 2rem 1rem 3rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding-inline: 2rem;
+  }
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
 }
 
 .quran-arabic {

@@ -9,11 +9,11 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="export-modal-title"
-        class="flex max-h-[90vh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
+        class="flex max-h-[90vh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
       >
         <header class="flex items-center justify-between border-b border-border p-4 bg-card/50">
           <div class="space-y-0.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span class="eyebrow">
               Generator Kartu Ayat Tipografis
             </span>
             <h2 id="export-modal-title" class="text-sm font-bold text-foreground">
@@ -23,16 +23,17 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Tutup jendela pembuat kartu"
           >
-            <X class="h-4 w-4" />
+            <X class="h-4 w-4" aria-hidden="true" />
           </button>
         </header>
 
         <div class="overflow-y-auto p-5 space-y-5">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="space-y-1">
-              <span class="text-[11px] font-semibold text-muted-foreground">Rasio Gambar</span>
+              <span class="text-xs font-semibold text-muted-foreground">Rasio Gambar</span>
               <div class="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
                 <button
                   type="button"
@@ -54,7 +55,7 @@
             </div>
 
             <div class="space-y-1">
-              <span class="text-[11px] font-semibold text-muted-foreground">Palet Tema</span>
+              <span class="text-xs font-semibold text-muted-foreground">Palet Tema</span>
               <div class="inline-flex rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
                 <button
                   type="button"
@@ -94,7 +95,7 @@
             ]"
           >
             <span
-              class="text-[10px] font-bold tracking-wider uppercase"
+              class="text-xs font-bold tracking-wider uppercase"
               :class="theme === 'emerald' ? 'text-amber-300' : 'text-emerald-700 dark:text-emerald-400'"
             >
               QS. {{ surahName }} : {{ verse.verse_number }}
@@ -113,7 +114,7 @@
                 :class="theme === 'emerald' ? 'bg-amber-300/50' : 'bg-emerald-600/30'"
               />
               <p
-                class="text-[10px] italic leading-snug line-clamp-3"
+                class="text-xs italic leading-snug line-clamp-3"
                 :class="theme === 'emerald' ? 'text-emerald-100' : 'text-slate-600 dark:text-zinc-400'"
               >
                 "{{ cleanTranslation }}"
@@ -207,4 +208,18 @@ const handleDownload = async () => {
     isGenerating.value = false;
   }
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    emit('close');
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>

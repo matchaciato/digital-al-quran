@@ -1,56 +1,57 @@
 <template>
-  <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+  <div class="page-container max-w-4xl space-y-8">
     <!-- Hero Search Section -->
-    <header class="mb-8 text-center sm:mb-12">
-      <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-3">
-        <Sparkles class="h-3.5 w-3.5" />
-        <span>Eksplorasi Kata Kunci Al-Qur'an</span>
-      </div>
-      <h1 class="text-3xl font-serif font-bold tracking-tight text-foreground sm:text-4xl">
+    <header class="text-center">
+      <p class="eyebrow">
+        Eksplorasi Kata Kunci Al-Qur'an
+      </p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
         Pencarian Teks Al-Qur'an
       </h1>
-      <p class="mt-2 text-sm text-muted-foreground sm:text-base max-w-xl mx-auto">
+      <p class="mt-2 max-w-xl mx-auto text-sm text-muted-foreground sm:text-base leading-relaxed">
         Cari ayat, kata kunci, terjemahan, dan tematik lintas 114 surah dengan cepat dan akurat.
       </p>
 
       <!-- Search Box Form -->
-      <form @submit.prevent="handleSearch" class="mt-6 flex max-w-2xl mx-auto gap-2">
+      <form @submit.prevent="handleSearch" class="mt-6 flex max-w-2xl mx-auto gap-2" role="search">
         <div class="relative flex-1">
-          <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search class="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
           <input
             type="search"
             v-model="queryInput"
+            aria-label="Cari kata kunci Al-Qur'an"
             placeholder="Cari kata kunci (contoh: sabar, surga, shalat, taqwa)..."
-            class="w-full rounded-xl border border-border bg-card/80 pl-11 pr-10 py-3 text-sm text-foreground shadow-sm placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            class="w-full rounded-md border border-input bg-card pl-10 pr-10 py-2.5 text-sm text-foreground shadow-xs placeholder:text-muted-foreground focus:border-primary focus:outline-none"
           />
           <button
             v-if="queryInput"
             type="button"
             @click="queryInput = ''"
-            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:text-foreground"
+            aria-label="Hapus kata kunci pencarian"
+            class="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
           >
-            <X class="h-4 w-4" />
+            <X class="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
         <button
           type="submit"
           :disabled="isLoading || !queryInput.trim()"
-          class="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50 active:scale-95"
+          class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
-          <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin mr-1.5" />
+          <Loader2 v-if="isLoading" class="h-4 w-4 animate-spin mr-1.5" aria-hidden="true" />
           <span v-else>Cari</span>
         </button>
       </form>
 
       <!-- Popular Tags / Chips -->
-      <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
-        <span class="text-xs text-muted-foreground font-medium">Populer:</span>
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-1.5">
+        <span class="text-xs text-muted-foreground">Populer:</span>
         <button
           v-for="tag in popularKeywords"
           :key="tag"
           type="button"
           @click="selectKeyword(tag)"
-          class="rounded-lg border border-border/80 bg-card/60 px-2.5 py-1 text-xs text-foreground/80 transition-colors hover:border-primary hover:text-primary hover:bg-primary/5 active:scale-95"
+          class="rounded-md border border-input bg-card px-2.5 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           {{ tag }}
         </button>
@@ -98,12 +99,12 @@
         <article
           v-for="item in results.search.results"
           :key="item.verse_id"
-          class="group rounded-2xl border border-border/70 bg-card p-5 sm:p-6 shadow-sm transition-all hover:border-border hover:shadow-md"
+          class="rounded-lg border border-border bg-card p-5 sm:p-6 transition-colors hover:border-foreground/30"
         >
           <!-- Card Header: Verse Key & Quick Actions -->
           <div class="flex items-center justify-between gap-3 border-b border-border/40 pb-3 mb-4">
             <div class="flex items-center gap-2">
-              <span class="flex h-7 px-2.5 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary font-mono">
+              <span class="inline-flex h-7 items-center rounded-md bg-muted px-2.5 font-mono text-xs font-semibold text-foreground">
                 Ayat {{ item.verse_key }}
               </span>
             </div>
@@ -113,10 +114,10 @@
               <button
                 type="button"
                 @click="handlePlayVerse(item.verse_key)"
-                class="inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors"
-                title="Dengarkan ayat ini"
+                class="inline-flex h-8 items-center gap-1 rounded-md border border-input px-2.5 text-xs font-medium text-foreground hover:bg-muted"
+                aria-label="Dengarkan ayat ini"
               >
-                <Play class="h-3.5 w-3.5 fill-current" />
+                <Play class="h-3.5 w-3.5 fill-current" aria-hidden="true" />
                 <span>Putar</span>
               </button>
 
@@ -124,20 +125,20 @@
               <button
                 type="button"
                 @click="copyVerse(item)"
-                class="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                title="Salin Teks Ayat"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-input text-muted-foreground hover:bg-muted hover:text-foreground"
+                :aria-label="copiedKey === item.verse_key ? 'Teks ayat tersalin' : 'Salin teks ayat'"
               >
-                <Check v-if="copiedKey === item.verse_key" class="h-3.5 w-3.5 text-emerald-500" />
-                <Copy v-else class="h-3.5 w-3.5" />
+                <Check v-if="copiedKey === item.verse_key" class="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                <Copy v-else class="h-3.5 w-3.5" aria-hidden="true" />
               </button>
 
               <!-- Open in Surah Reader Link -->
               <NuxtLink
                 :to="`/surah/${item.verse_key.split(':')[0]}#verse-${item.verse_key}`"
-                class="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                class="inline-flex h-8 items-center gap-1 rounded-md border border-input px-2.5 text-xs font-medium text-foreground hover:bg-muted"
               >
                 <span>Buka</span>
-                <ExternalLink class="h-3.5 w-3.5" />
+                <ExternalLink class="h-3.5 w-3.5" aria-hidden="true" />
               </NuxtLink>
             </div>
           </div>
@@ -145,7 +146,8 @@
           <!-- Arabic Text -->
           <div class="mb-4 text-right">
             <div
-              class="font-quran text-2xl sm:text-3xl leading-loose sm:leading-[3rem] text-foreground tracking-wide select-text"
+              class="quran-arabic text-2xl sm:text-3xl leading-[2.4] text-foreground select-text"
+              lang="ar"
               dir="rtl"
               v-html="item.text"
             ></div>
@@ -154,7 +156,7 @@
           <!-- Indonesian Translation with Keyword Highlight -->
           <div v-if="item.translations && item.translations.length > 0" class="border-t border-border/40 pt-3">
             <p
-              class="text-sm leading-relaxed text-muted-foreground sm:text-base select-text"
+              class="text-sm leading-relaxed text-muted-foreground select-text"
               v-html="highlightKeyword(stripHtmlTags(item.translations[0].text), currentQuery)"
             ></p>
           </div>
@@ -165,10 +167,10 @@
     <!-- Initial State (Before Searching) -->
     <div
       v-else-if="!isLoading"
-      class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border/80 py-16 text-center"
+      class="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center"
     >
-      <Compass class="h-12 w-12 text-primary/40 mb-3" />
-      <h3 class="text-base font-semibold text-foreground">Mulai Pencarian Ayat</h3>
+      <Compass class="h-10 w-10 text-muted-foreground/40 mb-3" aria-hidden="true" />
+      <h2 class="text-base font-semibold text-foreground">Mulai Pencarian Ayat</h2>
       <p class="mt-1 text-xs text-muted-foreground max-w-sm">
         Ketik kata kunci apa saja atau klik salah satu topik populer di atas untuk menjelajahi kalamullah.
       </p>

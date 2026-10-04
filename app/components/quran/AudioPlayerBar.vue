@@ -9,16 +9,16 @@
       <div class="flex items-center justify-between gap-2">
         <!-- Verse & Reciter Info -->
         <div class="flex items-center gap-2.5 min-w-0 flex-1">
-          <span class="flex h-7 sm:h-8 shrink-0 items-center justify-center rounded-lg bg-primary px-2 sm:px-2.5 text-[11px] sm:text-xs font-bold text-primary-foreground">
+          <span class="flex h-7 sm:h-8 shrink-0 items-center justify-center rounded-lg bg-primary px-2 sm:px-2.5 text-xs sm:text-xs font-bold text-primary-foreground">
             {{ audioStore.currentVerseKey ? `Ayat ${audioStore.currentVerseKey}` : 'Murottal' }}
           </span>
           <div class="min-w-0 flex-1">
             <p class="truncate text-xs font-semibold text-foreground">
               {{ currentReciterName }}
             </p>
-            <div class="flex items-center gap-1.5 truncate text-[10px] sm:text-[11px] text-muted-foreground">
+            <div class="flex items-center gap-1.5 truncate text-xs sm:text-xs text-muted-foreground">
               <span>Surah ke-{{ audioStore.currentChapterId || 1 }}</span>
-              <span v-if="audioStore.isHifzWaitingGap" class="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400 animate-pulse">
+              <span v-if="audioStore.isHifzWaitingGap" class="inline-flex items-center rounded-full bg-amber-500/15 px-1.5 py-0.5 text-xs font-medium text-amber-800 dark:text-amber-300 animate-pulse">
                 Jeda: {{ audioStore.hifzGapCountdown }}s
               </span>
             </div>
@@ -143,7 +143,7 @@
         <button
           type="button"
           @click="isReciterModalOpen = true"
-          class="rounded-md border border-border/80 px-2 py-1 text-[11px] font-medium text-muted-foreground active:bg-muted"
+          class="rounded-md border border-border/80 px-2 py-1 text-xs font-medium text-muted-foreground active:bg-muted"
         >
           Qari
         </button>
@@ -194,7 +194,7 @@
           <button
             type="button"
             @click="isHifzModalOpen = true"
-            class="rounded-md border border-border/80 px-2 py-1 text-[11px] font-medium transition-colors"
+            class="rounded-md border border-border/80 px-2 py-1 text-xs font-medium transition-colors"
             :class="[
               audioStore.isHifzActive
                 ? 'border-primary bg-primary/10 text-primary font-semibold'
@@ -207,7 +207,7 @@
       </div>
 
       <!-- Scrubber Timeline -->
-      <div class="flex items-center gap-2.5 text-[11px] sm:text-xs text-muted-foreground font-mono">
+      <div class="flex items-center gap-2.5 text-xs sm:text-xs text-muted-foreground font-mono">
         <span class="w-8 text-right shrink-0">{{ formatTime(audioStore.currentTime) }}</span>
         <input
           type="range"

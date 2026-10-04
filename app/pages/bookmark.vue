@@ -1,39 +1,39 @@
 <template>
-  <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-    <header class="flex flex-col justify-between gap-4 border-b border-border/60 pb-6 sm:flex-row sm:items-center">
-      <div class="space-y-1">
-        <span class="text-xs font-semibold uppercase tracking-wider text-primary">
-          Personal Knowledge & Reflection Space
-        </span>
-        <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-          Studio Tadabbur & Penanda Ayat
+  <div class="page-container space-y-8">
+    <header class="flex flex-col justify-between gap-4 border-b border-border pb-6 sm:flex-row sm:items-center">
+      <div>
+        <p class="eyebrow">
+          Refleksi & Penanda Bacaan
+        </p>
+        <h1 class="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">
+          Studio Tadabbur
         </h1>
-        <p class="text-xs text-muted-foreground">
-          Kelola penanda bacaan, koleksi folder bertema, dan tulis catatan refleksi pribadi Anda.
+        <p class="mt-1 text-sm text-muted-foreground">
+          Kelola penanda bacaan, koleksi folder kajian, dan simpan mutiara tadabbur pribadi.
         </p>
       </div>
 
       <button
         type="button"
         @click="handleExportMarkdown"
-        class="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground shadow-xs hover:bg-muted active:scale-95 transition-all"
+        class="inline-flex h-10 items-center gap-2 rounded-md border border-input px-4 text-sm font-medium hover:bg-muted"
       >
-        <Download class="h-4 w-4 text-primary" />
-        Ekspor Jurnal (.md)
+        <Download class="h-4 w-4" aria-hidden="true" />
+        Ekspor jurnal (.md)
       </button>
     </header>
 
     <section
       v-if="bookmarkStore.lastRead"
-      class="flex flex-col justify-between gap-4 rounded-2xl border border-primary/30 bg-primary/5 p-6 sm:flex-row sm:items-center"
+      class="flex flex-col justify-between gap-4 rounded-lg border border-primary/30 bg-primary/5 p-6 sm:flex-row sm:items-center"
     >
       <div class="space-y-1">
-        <span class="text-xs font-bold uppercase tracking-wider text-primary">
-          Terakhir Dibaca
-        </span>
-        <h3 class="text-lg font-bold text-foreground">
-          QS. {{ bookmarkStore.lastRead.surahName }} — Ayat {{ bookmarkStore.lastRead.verseKey }}
-        </h3>
+        <p class="eyebrow text-primary">
+          Terakhir dibaca
+        </p>
+        <h2 class="text-xl font-bold text-foreground">
+          QS. {{ bookmarkStore.lastRead.surahName }} &middot; Ayat {{ bookmarkStore.lastRead.verseKey }}
+        </h2>
         <p class="text-xs text-muted-foreground">
           Lanjutkan tilawah Anda dari titik terakhir.
         </p>
@@ -41,9 +41,9 @@
 
       <NuxtLink
         :to="`/surah/${bookmarkStore.lastRead.chapterId}#verse-${bookmarkStore.lastRead.verseKey}`"
-        class="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-xs hover:opacity-90 active:scale-95 transition-all"
+        class="inline-flex h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
       >
-        Lanjutkan Membaca &rarr;
+        Lanjutkan membaca &rarr;
       </NuxtLink>
     </section>
 
@@ -89,9 +89,9 @@
     </div>
 
     <section v-if="activeTab === 'bookmarks'" class="space-y-4">
-      <div v-if="bookmarkStore.bookmarks.length === 0" class="rounded-xl border border-dashed border-border p-12 text-center space-y-2">
-        <span class="text-3xl">🔖</span>
-        <h3 class="text-sm font-bold text-foreground">Belum Ada Penanda Ayat</h3>
+      <div v-if="bookmarkStore.bookmarks.length === 0" class="rounded-lg border border-dashed border-border p-12 text-center space-y-2">
+        <Bookmark class="mx-auto h-10 w-10 text-muted-foreground/40" aria-hidden="true" />
+        <h2 class="text-base font-semibold text-foreground">Belum ada penanda ayat</h2>
         <p class="text-xs text-muted-foreground max-w-sm mx-auto">
           Klik tombol "Tandai" pada ayat mana pun saat membaca untuk menyimpannya di sini.
         </p>
@@ -107,7 +107,7 @@
             <span class="rounded bg-muted px-2 py-0.5 text-xs font-bold text-foreground">
               QS. {{ item.surahName }} ({{ item.verseKey }})
             </span>
-            <p class="text-[11px] text-muted-foreground">
+            <p class="text-xs text-muted-foreground">
               Ditambahkan: {{ formatDate(item.createdAt) }}
             </p>
           </div>
@@ -203,7 +203,7 @@
               <span class="rounded bg-primary/10 px-2 py-0.5 font-bold text-primary">
                 QS. {{ note.surahName }} ({{ note.verseKey }})
               </span>
-              <span class="rounded bg-muted px-2 py-0.5 text-muted-foreground text-[11px]">
+              <span class="rounded bg-muted px-2 py-0.5 text-muted-foreground text-xs">
                 {{ getFolderName(note.folderId) }}
               </span>
             </div>
@@ -222,7 +222,7 @@
             {{ note.note }}
           </p>
 
-          <div class="flex items-center justify-between text-[11px] text-muted-foreground pt-1 border-t border-border/30">
+          <div class="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-border/30">
             <span>{{ formatDate(note.createdAt) }}</span>
             <NuxtLink
               :to="`/surah/${note.surahId}#verse-${note.verseKey}`"
@@ -283,7 +283,7 @@
             </p>
           </div>
 
-          <div class="border-t border-border/40 pt-2 text-[11px] text-muted-foreground">
+          <div class="border-t border-border/40 pt-2 text-xs text-muted-foreground">
             {{ countNotesInFolder(folder.id) }} Catatan Refleksi
           </div>
         </article>
@@ -293,7 +293,7 @@
 </template>
 
 <script setup lang="ts">
-import { Download, Trash2, BookOpen } from '@lucide/vue';
+import { Download, Trash2, BookOpen, Bookmark } from '@lucide/vue';
 import { useBookmarkStore } from '~/stores/useBookmarkStore';
 import { useTadabburStore } from '~/stores/useTadabburStore';
 import { getSurahName } from '~/constants/surahs';

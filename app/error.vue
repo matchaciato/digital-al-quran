@@ -7,11 +7,11 @@
     <main class="w-full max-w-xl text-center space-y-8">
       <!-- Spiritual & Aesthetic Calligraphy Header -->
       <div class="space-y-3">
-        <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3.5 py-1 text-xs font-semibold text-primary">
-          <span>{{ is404 ? 'Kode Status 404' : 'Kode Status ' + (error?.statusCode || 500) }}</span>
-        </div>
+        <p class="eyebrow">
+          Kode status {{ is404 ? '404' : (error?.statusCode || 500) }}
+        </p>
 
-        <p class="quran-arabic text-3xl sm:text-4xl text-foreground/90 pt-2" dir="rtl">
+        <p class="quran-arabic text-3xl sm:text-4xl text-foreground pt-1" lang="ar" dir="rtl">
           فَإِنَّ مَعَ الْعُسْرِ يُسْرًا
         </p>
         <p class="text-xs text-muted-foreground italic font-serif">
@@ -20,7 +20,7 @@
       </div>
 
       <!-- Error Card -->
-      <div class="rounded-2xl border border-border/80 bg-card p-6 sm:p-10 shadow-sm space-y-6">
+      <div class="rounded-lg border border-border bg-card p-6 sm:p-10 space-y-6">
         <div class="space-y-2">
           <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             {{ is404 ? 'Halaman Tidak Ditemukan' : 'Terjadi Kendala Sistem' }}
@@ -35,23 +35,23 @@
           <button
             type="button"
             @click="handleGoHome"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-xs transition-all hover:opacity-90 active:scale-95"
+            class="w-full sm:w-auto inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
-            &larr; Kembali ke Beranda
+            Kembali ke beranda
           </button>
 
           <button
             type="button"
             @click="handleReload"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-muted/40 px-5 py-2.5 text-xs font-semibold text-foreground transition-all hover:bg-muted active:scale-95"
+            class="w-full sm:w-auto inline-flex h-10 items-center justify-center rounded-md border border-input px-5 text-sm font-medium text-foreground hover:bg-muted"
           >
-            Muat Ulang Halaman
+            Muat ulang halaman
           </button>
         </div>
 
         <!-- Quick Access to Essential Surahs -->
         <div class="border-t border-border/50 pt-5 space-y-3">
-          <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          <p class="eyebrow">
             Akses Cepat Surah Pilihan
           </p>
           <div class="flex flex-wrap items-center justify-center gap-2 text-xs">
@@ -60,7 +60,7 @@
               :key="item.path"
               :to="item.path"
               @click="handleNavigate(item.path)"
-              class="rounded-lg border border-border/70 bg-background px-3 py-1.5 font-medium text-foreground/80 hover:border-primary/50 hover:text-primary transition-colors"
+              class="rounded-md border border-input bg-background px-3 py-1.5 font-medium text-foreground hover:bg-muted transition-colors"
             >
               {{ item.title }}
             </NuxtLink>
@@ -73,7 +73,7 @@
         <summary class="cursor-pointer font-semibold text-destructive">
           Detail Kesalahan Teknis (Mode Pengembang)
         </summary>
-        <pre class="mt-2 overflow-x-auto p-2 bg-background/80 rounded font-mono text-[11px] text-destructive/90 whitespace-pre-wrap">
+        <pre class="mt-2 overflow-x-auto p-2 bg-background/80 rounded font-mono text-xs text-destructive/90 whitespace-pre-wrap">
 {{ error.stack }}
         </pre>
       </details>

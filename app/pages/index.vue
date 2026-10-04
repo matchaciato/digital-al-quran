@@ -11,7 +11,7 @@
           </p>
         </div>
 
-        <p class="quran-arabic hidden text-2xl text-primary/80 lg:block" dir="rtl">
+        <p class="quran-arabic hidden text-2xl text-primary lg:block" dir="rtl">
           بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
         </p>
       </div>
@@ -130,7 +130,7 @@
               </span>
             </div>
 
-            <div class="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-[11px] text-muted-foreground">
+            <div class="mt-4 flex items-center justify-between border-t border-border/40 pt-3 text-xs text-muted-foreground">
               <span class="capitalize">
                 {{ surah.revelation_place === 'makkah' ? 'Makkiyah' : 'Madaniyah' }}
               </span>

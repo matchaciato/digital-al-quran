@@ -10,6 +10,7 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: { lang: 'id' },
       title: 'Digital Al-Qur\'an — Editorial Typography & Linguistic Anatomy',
       meta: [
         { charset: 'utf-8' },
@@ -20,7 +21,7 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ]
     }
   },

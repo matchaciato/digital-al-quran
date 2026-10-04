@@ -6,24 +6,27 @@
       @click.self="closeDrawer"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="tafsir-drawer-title"
         class="flex h-full w-full max-w-2xl flex-col justify-between overflow-hidden border-l border-border bg-background shadow-2xl transition-transform duration-200"
       >
         <header class="flex items-center justify-between border-b border-border p-5 bg-card/50">
           <div class="space-y-0.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span class="eyebrow">
               Kajian & Eksplorasi Tafsir
             </span>
-            <h2 class="text-base font-bold text-foreground">
+            <h2 id="tafsir-drawer-title" class="text-base font-bold text-foreground">
               Tafsir & Asbabun Nuzul Ayat {{ verseKey }}
             </h2>
           </div>
           <button
             type="button"
             @click="closeDrawer"
-            class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label="Tutup drawer tafsir"
+            class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Tutup panel tafsir"
           >
-            <X class="h-4 w-4" />
+            <X class="h-4 w-4" aria-hidden="true" />
           </button>
         </header>
 
@@ -93,7 +96,7 @@
           <div v-else-if="activeTab === 'asbabun_nuzul'">
             <div v-if="asbabunNuzulData" class="space-y-4">
               <div class="rounded-xl border border-amber-500/30 bg-amber-500/5 p-5 space-y-2">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">
                   Latar Belakang Turunnya Ayat (Asbabun Nuzul)
                 </span>
                 <h3 class="text-base font-bold text-foreground">
@@ -110,7 +113,7 @@
             </div>
 
             <div v-else class="py-16 text-center space-y-2">
-              <span class="text-3xl">📖</span>
+              <BookOpen class="mx-auto h-10 w-10 text-muted-foreground/40" aria-hidden="true" />
               <h3 class="text-sm font-bold text-foreground">Tidak Ada Riwayat Khusus</h3>
               <p class="text-xs text-muted-foreground max-w-sm mx-auto">
                 Ayat {{ verseKey }} tidak memiliki riwayat asbabun nuzul khusus yang tercatat tersendiri. Silakan pelajari makna ayat pada tab Tafsir Ulama.
@@ -123,7 +126,7 @@
           <button
             type="button"
             @click="closeDrawer"
-            class="rounded-lg bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 active:scale-95"
+            class="inline-flex h-10 items-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:opacity-90"
           >
             Selesai
           </button>
@@ -134,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { X } from '@lucide/vue';
+import { X, BookOpen } from '@lucide/vue';
 import { useQuranApi } from '~/composables/useQuranApi';
 import { useSettingsStore } from '~/stores/useSettingsStore';
 import { TAFSIR_RESOURCES } from '~/constants/tafsirs';
@@ -204,4 +207,18 @@ watch(() => props.verseKey, (newVal) => {
 const closeDrawer = () => {
   emit('close');
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    closeDrawer();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>

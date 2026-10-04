@@ -59,14 +59,14 @@
           dir="rtl"
         >
           {{ verse.text_uthmani }}
-          <span class="ayah-end-glyph text-primary/80 font-normal select-none px-1">
+          <span class="ayah-end-glyph text-primary font-normal select-none px-1">
             {{ formatAyahGlyph(verse.verse_number) }}
           </span>
         </p>
 
         <div class="mt-6 grid gap-4 border-t border-border/40 pt-5 md:grid-cols-2">
           <div class="rounded-lg border border-border/50 bg-background/50 p-4 space-y-1.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span class="text-xs font-semibold uppercase tracking-wider text-primary">
               Bahasa Indonesia (Kemenag RI)
             </span>
             <p
@@ -78,7 +78,7 @@
           </div>
 
           <div class="rounded-lg border border-border/50 bg-background/50 p-4 space-y-1.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               English (Sahih International / Clear Quran)
             </span>
             <p

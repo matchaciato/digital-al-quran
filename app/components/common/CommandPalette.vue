@@ -6,14 +6,18 @@
       @click.self="close"
     >
       <div
-        class="flex w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl transition-all"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Pencarian cepat dan navigasi perintah"
+        class="flex w-full max-w-xl flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl transition-all"
       >
         <div class="flex items-center gap-3 border-b border-border px-4 py-3.5 bg-card/50">
-          <Search class="h-4 w-4 text-muted-foreground shrink-0" />
+          <Search class="h-4 w-4 text-muted-foreground shrink-0" aria-hidden="true" />
           <input
             ref="inputRef"
             type="text"
             v-model="query"
+            aria-label="Cari surah, ayat, topik, atau perintah"
             placeholder="Cari surah, ayat (2:255 atau kahf 10), topik, atau perintah..."
             class="w-full bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
             @keydown.down.prevent="handleArrowDown"
@@ -21,7 +25,7 @@
             @keydown.enter.prevent="handleSelectActive"
             @keydown.esc="close"
           />
-          <kbd class="hidden rounded bg-muted px-2 py-0.5 text-[10px] font-mono text-muted-foreground sm:inline-block">
+          <kbd class="hidden rounded border border-border px-2 py-0.5 text-xs font-mono text-muted-foreground sm:inline-block">
             ESC
           </kbd>
         </div>
@@ -46,10 +50,10 @@
           >
             <div class="flex items-center gap-2.5 min-w-0">
               <span
-                class="rounded px-1.5 py-0.5 text-[10px] font-semibold"
+                class="rounded px-1.5 py-0.5 text-xs font-semibold"
                 :class="[
                   item.category === 'Lompat'
-                    ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold'
+                    ? 'bg-amber-500/20 text-amber-800 dark:text-amber-300 font-bold'
                     : 'bg-muted text-muted-foreground'
                 ]"
               >
@@ -58,13 +62,13 @@
               <span class="truncate">{{ item.title }}</span>
             </div>
 
-            <span v-if="item.meta" class="text-[11px] text-muted-foreground font-mono">
+            <span v-if="item.meta" class="text-xs text-muted-foreground font-mono">
               {{ item.meta }}
             </span>
           </button>
         </div>
 
-        <footer class="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2 text-[11px] text-muted-foreground">
+        <footer class="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2 text-xs text-muted-foreground">
           <div class="flex items-center gap-2">
             <span>&uarr;&darr; Navigasi</span>
             <span>&bull;</span>

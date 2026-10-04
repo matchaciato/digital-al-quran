@@ -5,14 +5,17 @@
     @click.self="$emit('close')"
   >
     <div
-      class="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl transition-all"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="quick-tadabbur-title"
+      class="relative w-full max-w-lg rounded-lg border border-border bg-card p-6 shadow-2xl transition-all"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between border-b border-border/60 pb-3.5">
+      <div class="flex items-center justify-between border-b border-border pb-3.5">
         <div class="flex items-center gap-2">
-          <BookMarked class="h-5 w-5 text-primary" />
+          <BookMarked class="h-5 w-5 text-primary" aria-hidden="true" />
           <div>
-            <h3 class="text-base font-bold text-foreground">Jurnal Tadabbur Ayat</h3>
+            <h2 id="quick-tadabbur-title" class="text-base font-bold text-foreground">Jurnal Tadabbur Ayat</h2>
             <p class="text-xs text-muted-foreground">
               QS. {{ surahName }} (Ayat {{ verseKey }})
             </p>
@@ -21,9 +24,10 @@
         <button
           type="button"
           @click="$emit('close')"
-          class="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Tutup jendela tadabbur"
+          class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
         >
-          <X class="h-4 w-4" />
+          <X class="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 
@@ -31,12 +35,13 @@
       <div class="mt-4 space-y-4">
         <!-- Folder Selection -->
         <div>
-          <label class="block text-xs font-semibold text-foreground mb-1">
+          <label for="quick-folder-select" class="block text-xs font-semibold text-foreground mb-1">
             Pilih Kategori / Folder
           </label>
           <select
+            id="quick-folder-select"
             v-model="selectedFolderId"
-            class="w-full rounded-xl border border-border bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            class="w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground focus:border-primary focus:outline-none"
           >
             <option
               v-for="folder in tadabburStore.folders"
@@ -50,14 +55,15 @@
 
         <!-- Note Textarea -->
         <div>
-          <label class="block text-xs font-semibold text-foreground mb-1">
+          <label for="quick-note-textarea" class="block text-xs font-semibold text-foreground mb-1">
             Catatan Renungan & Hikmah
           </label>
           <textarea
+            id="quick-note-textarea"
             v-model="noteText"
             rows="5"
             placeholder="Tuliskan hikmah, pelajaran, atau doa yang terinspirasi dari ayat ini..."
-            class="w-full rounded-xl border border-border bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+            class="w-full rounded-md border border-input bg-background p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none resize-none"
           ></textarea>
         </div>
 
@@ -84,7 +90,7 @@
             <button
               type="button"
               @click="$emit('close')"
-              class="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+              class="inline-flex h-9 items-center rounded-md border border-input px-3 text-xs font-medium text-muted-foreground hover:bg-muted"
             >
               Batal
             </button>
@@ -92,10 +98,10 @@
               type="button"
               :disabled="!noteText.trim()"
               @click="handleSaveNote"
-              class="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground shadow-sm hover:bg-primary/90 disabled:opacity-50"
+              class="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              <Check class="h-3.5 w-3.5" />
-              <span>{{ existingNote ? 'Perbarui Refleksi' : 'Simpan Refleksi' }}</span>
+              <Check class="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{{ existingNote ? 'Perbarui refleksi' : 'Simpan refleksi' }}</span>
             </button>
           </div>
         </div>
@@ -175,4 +181,18 @@ const handleDeleteNote = () => {
     emit('close');
   }
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    emit('close');
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>

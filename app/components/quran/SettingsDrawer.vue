@@ -6,27 +6,30 @@
       @click.self="closeDrawer"
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-drawer-title"
         class="flex h-full w-full max-w-md flex-col justify-between overflow-y-auto border-l border-border bg-background p-6 shadow-2xl transition-transform"
       >
         <div class="space-y-6">
           <div class="flex items-center justify-between border-b border-border pb-4">
             <div>
-              <h2 class="text-lg font-semibold tracking-tight text-foreground">Pengaturan Tampilan</h2>
+              <h2 id="settings-drawer-title" class="text-lg font-semibold tracking-tight text-foreground">Pengaturan Tampilan</h2>
               <p class="text-xs text-muted-foreground">Sesuaikan preferensi membaca dan tipografi</p>
             </div>
             <button
               @click="closeDrawer"
-              class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+              class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
               aria-label="Tutup pengaturan"
             >
-              <X class="h-4 w-4" />
+              <X class="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
 
           <div class="space-y-5">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ukuran Tipografi</h3>
+            <h3 class="eyebrow">Ukuran Tipografi</h3>
             
-            <div class="space-y-2 rounded-lg border border-border/70 bg-card p-4">
+            <div class="space-y-2 rounded-lg border border-border bg-card p-4">
               <div class="flex justify-between text-xs">
                 <span class="font-medium text-foreground">Teks Arab</span>
                 <span class="font-semibold text-primary">{{ settings.arabicFontSize }}px</span>
@@ -35,6 +38,7 @@
                 type="range"
                 min="18"
                 max="48"
+                aria-label="Ukuran font teks Arab"
                 :value="settings.arabicFontSize"
                 @input="e => settings.setArabicFontSize(Number((e.target as HTMLInputElement).value))"
                 class="w-full cursor-pointer accent-primary"
@@ -48,7 +52,7 @@
               </p>
             </div>
 
-            <div class="space-y-2 rounded-lg border border-border/70 bg-card p-4">
+            <div class="space-y-2 rounded-lg border border-border bg-card p-4">
               <div class="flex justify-between text-xs">
                 <span class="font-medium text-foreground">Teks Terjemahan</span>
                 <span class="font-semibold text-primary">{{ settings.translationFontSize }}px</span>
@@ -57,12 +61,13 @@
                 type="range"
                 min="12"
                 max="24"
+                aria-label="Ukuran font teks terjemahan"
                 :value="settings.translationFontSize"
                 @input="e => settings.setTranslationFontSize(Number((e.target as HTMLInputElement).value))"
                 class="w-full cursor-pointer accent-primary"
               />
               <p
-                class="mt-2 text-muted-foreground"
+                class="mt-2 text-muted-foreground text-sm"
                 :style="{ fontSize: `${settings.translationFontSize}px` }"
               >
                 Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.
@@ -71,7 +76,7 @@
           </div>
 
           <div class="space-y-4 border-t border-border pt-5">
-            <h3 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Elemen Tampilan</h3>
+            <h3 class="eyebrow">Elemen Tampilan</h3>
 
             <div class="flex items-center justify-between py-1">
               <div>
@@ -84,6 +89,7 @@
                 :class="[settings.showLatin ? 'bg-primary' : 'bg-muted border border-border']"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                 role="switch"
+                aria-label="Alihkan tampilan transliterasi latin"
                 :aria-checked="settings.showLatin"
               >
                 <span
@@ -104,6 +110,7 @@
                 :class="[settings.showTranslation ? 'bg-primary' : 'bg-muted border border-border']"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                 role="switch"
+                aria-label="Alihkan tampilan terjemahan ayat"
                 :aria-checked="settings.showTranslation"
               >
                 <span
@@ -124,6 +131,7 @@
                 :class="[settings.isDarkMode ? 'bg-primary' : 'bg-muted border border-border']"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
                 role="switch"
+                aria-label="Alihkan tema mode gelap"
                 :aria-checked="settings.isDarkMode"
               >
                 <span
@@ -139,7 +147,7 @@
           <button
             type="button"
             @click="closeDrawer"
-            class="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 active:scale-98"
+            class="inline-flex h-10 w-full items-center justify-center rounded-md bg-primary text-sm font-medium text-primary-foreground hover:opacity-90"
           >
             Simpan & Selesai
           </button>
@@ -153,7 +161,7 @@
 import { X } from '@lucide/vue';
 import { useSettingsStore } from '~/stores/useSettingsStore';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
 }>();
 
@@ -166,4 +174,18 @@ const settings = useSettingsStore();
 const closeDrawer = () => {
   emit('close');
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    closeDrawer();
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>

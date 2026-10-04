@@ -1,8 +1,10 @@
 <template>
-  <div class="min-h-screen bg-background text-foreground flex flex-col transition-colors">
+  <div class="flex min-h-screen flex-col bg-background text-foreground">
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+
     <AppHeader @open-command="shortcuts.openCommandPalette()" />
 
-    <main class="flex-1 w-full pb-16 md:pb-0">
+    <main id="main-content" tabindex="-1" class="w-full flex-1 pb-20 outline-none md:pb-0">
       <slot />
     </main>
 

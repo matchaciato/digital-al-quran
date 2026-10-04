@@ -6,24 +6,27 @@
       @click.self="$emit('close')"
     >
       <div
-        class="flex max-h-[85dvh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl transition-all"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="reciter-modal-title"
+        class="flex max-h-[85dvh] w-full max-w-lg flex-col justify-between overflow-hidden rounded-lg border border-border bg-background shadow-2xl transition-all"
       >
         <header class="flex items-center justify-between border-b border-border p-4 sm:p-5 bg-card/40">
           <div class="space-y-0.5 min-w-0 pr-2">
-            <span class="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span class="eyebrow">
               Katalog Qari Internasional
             </span>
-            <h2 class="truncate text-sm sm:text-base font-bold text-foreground">
+            <h2 id="reciter-modal-title" class="truncate text-base font-bold text-foreground">
               Pilih Qari Murottal & Mujawwad
             </h2>
           </div>
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground shrink-0"
-            aria-label="Tutup"
+            class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground shrink-0"
+            aria-label="Tutup jendela pemilih qari"
           >
-            <X class="h-4 w-4" />
+            <X class="h-4 w-4" aria-hidden="true" />
           </button>
         </header>
 
@@ -46,17 +49,17 @@
                   {{ reciter.name }}
                 </span>
                 <span
-                  class="rounded px-1.5 py-0.5 text-[9px] sm:text-[10px] font-semibold shrink-0"
+                  class="rounded px-1.5 py-0.5 text-[9px] sm:text-xs font-semibold shrink-0"
                   :class="[
                     reciter.style === 'Mujawwad'
-                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                      ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300'
                       : 'bg-primary/10 text-primary'
                   ]"
                 >
                   {{ reciter.style }}
                 </span>
               </div>
-              <p class="text-[11px] sm:text-xs text-muted-foreground">
+              <p class="text-xs sm:text-xs text-muted-foreground">
                 {{ reciter.country || 'Internasional' }}
               </p>
             </div>
@@ -71,7 +74,7 @@
           <button
             type="button"
             @click="$emit('close')"
-            class="rounded-lg bg-primary px-4 sm:px-5 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
+            class="inline-flex h-9 items-center rounded-md bg-primary px-5 text-xs font-semibold text-primary-foreground hover:opacity-90"
           >
             Selesai
           </button>
@@ -86,7 +89,7 @@ import { X } from '@lucide/vue';
 import { useSettingsStore } from '~/stores/useSettingsStore';
 import { RECITERS_CATALOG } from '~/constants/reciters';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
 }>();
 
@@ -100,4 +103,18 @@ const selectReciter = (id: number) => {
   settings.setReciterId(id);
   emit('close');
 };
+
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'Escape' && props.isOpen) {
+    emit('close');
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>

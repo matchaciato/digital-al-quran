@@ -46,7 +46,7 @@
 
           <p
             v-if="settings.showTranslation && verse.translations?.[0]?.text"
-            class="mt-4 text-sm text-muted-foreground/80 max-w-2xl mx-auto"
+            class="mt-4 text-sm text-muted-foreground max-w-2xl mx-auto"
           >
             {{ stripHtmlTags(verse.translations[0].text) }}
           </p>

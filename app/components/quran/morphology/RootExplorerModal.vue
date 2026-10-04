@@ -9,11 +9,11 @@
         role="dialog"
         aria-modal="true"
         aria-labelledby="root-modal-title"
-        class="flex max-h-[90vh] w-full max-w-2xl flex-col justify-between overflow-hidden rounded-2xl border border-border bg-background shadow-2xl transition-all"
+        class="flex max-h-[90vh] w-full max-w-2xl flex-col justify-between overflow-hidden rounded-lg border border-border bg-background shadow-2xl transition-all"
       >
         <header class="flex items-center justify-between border-b border-border p-5">
           <div class="space-y-0.5">
-            <span class="text-[11px] font-semibold uppercase tracking-wider text-primary">
+            <span class="eyebrow">
               Linguistic Anatomy & Root Explorer
             </span>
             <h2 id="root-modal-title" class="text-lg font-bold text-foreground">
@@ -24,10 +24,10 @@
           <button
             type="button"
             @click="closeModal"
-            class="rounded-md border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
-            aria-label="Tutup modal"
+            class="rounded-md border border-input p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Tutup jendela anatomi kata"
           >
-            <X class="h-4 w-4" />
+            <X class="h-4 w-4" aria-hidden="true" />
           </button>
         </header>
 
@@ -56,37 +56,37 @@
 
           <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <div class="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-center space-y-1">
-              <span class="text-[10px] font-semibold uppercase text-muted-foreground">Akar Kata (Root)</span>
+              <span class="text-xs font-semibold uppercase text-muted-foreground">Akar Kata (Root)</span>
               <p class="quran-arabic text-xl font-bold text-primary" dir="rtl">
                 {{ wordData.rootArabic }}
               </p>
-              <span class="text-[11px] font-mono text-muted-foreground">[{{ wordData.root }}]</span>
+              <span class="text-xs font-mono text-muted-foreground">[{{ wordData.root }}]</span>
             </div>
 
             <div class="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-center space-y-1">
-              <span class="text-[10px] font-semibold uppercase text-muted-foreground">Tata Bahasa</span>
+              <span class="text-xs font-semibold uppercase text-muted-foreground">Tata Bahasa</span>
               <p class="text-xs font-bold text-foreground line-clamp-1">
                 {{ wordData.partOfSpeechLabel }}
               </p>
-              <span class="text-[10px] text-muted-foreground capitalize">
+              <span class="text-xs text-muted-foreground capitalize">
                 {{ wordData.partOfSpeech }}
               </span>
             </div>
 
             <div class="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-center space-y-1">
-              <span class="text-[10px] font-semibold uppercase text-muted-foreground">Pola Wazan</span>
+              <span class="text-xs font-semibold uppercase text-muted-foreground">Pola Wazan</span>
               <p class="quran-arabic text-sm font-bold text-foreground" dir="rtl">
                 {{ wordData.wazan || 'فَعَلَ' }}
               </p>
-              <span class="text-[10px] text-muted-foreground">Bentuk Dasar</span>
+              <span class="text-xs text-muted-foreground">Bentuk Dasar</span>
             </div>
 
             <div class="rounded-lg border border-border/60 bg-muted/30 p-3.5 text-center space-y-1">
-              <span class="text-[10px] font-semibold uppercase text-muted-foreground">Frekuensi</span>
+              <span class="text-xs font-semibold uppercase text-muted-foreground">Frekuensi</span>
               <p class="text-base font-bold text-primary">
                 {{ wordData.occurrencesCount }}x
               </p>
-              <span class="text-[10px] text-muted-foreground">Di Seluruh Al-Qur'an</span>
+              <span class="text-xs text-muted-foreground">Di Seluruh Al-Qur'an</span>
             </div>
           </div>
 

@@ -54,7 +54,7 @@
                 ? 'bg-card text-foreground shadow-2xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             ]"
-            class="rounded-md px-2.5 py-1 text-[11px] transition-all"
+            class="rounded-md px-2.5 py-1 text-xs transition-all"
           >
             Per Halaman
           </button>
@@ -66,7 +66,7 @@
                 ? 'bg-card text-foreground shadow-2xs font-semibold'
                 : 'text-muted-foreground hover:text-foreground'
             ]"
-            class="rounded-md px-2.5 py-1 text-[11px] transition-all"
+            class="rounded-md px-2.5 py-1 text-xs transition-all"
           >
             Semua Halaman
           </button>
@@ -88,9 +88,9 @@
             {{ page.surahNames.join(' • ') }}
           </span>
 
-          <div class="hidden sm:flex items-center gap-1.5 text-primary/70 font-serif">
+          <div class="hidden sm:flex items-center gap-1.5 text-primary font-serif">
             <span>۞</span>
-            <span class="text-[11px] uppercase tracking-wider font-sans text-muted-foreground">Mushaf Madinah</span>
+            <span class="text-xs uppercase tracking-wider font-sans text-muted-foreground">Mushaf Madinah</span>
             <span>۞</span>
           </div>
 
@@ -129,7 +129,7 @@
               :title="`Ayat ${verse.verse_key} — Klik untuk aksi cepat`"
             >
               {{ verse.text_uthmani }}
-              <span class="ayah-end-glyph text-primary/80 font-normal select-none px-1">
+              <span class="ayah-end-glyph text-primary font-normal select-none px-1">
                 {{ formatAyahGlyph(verse.verse_number) }}
               </span>
             </span>
@@ -191,49 +191,49 @@
             <button
               type="button"
               @click="handlePlaySelected"
-              class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-95"
+              class="inline-flex items-center rounded-md px-3 py-1.5 font-semibold text-primary-foreground transition-all hover:opacity-90 active:scale-95"
               :class="isSelectedPlaying ? 'bg-amber-600' : 'bg-primary'"
             >
-              {{ isSelectedPlaying ? '⏸ Jeda Tilawah' : '▶ Putar Ayat Ini' }}
+              {{ isSelectedPlaying ? 'Jeda tilawah' : 'Putar ayat' }}
             </button>
 
             <button
               type="button"
               @click="$emit('openTafsir', selectedVerse.verse_key)"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
+              class="inline-flex items-center rounded-md border border-input bg-card px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
             >
-              📖 Buka Tafsir
+              Buka tafsir
             </button>
 
             <button
               type="button"
               @click="handleToggleBookmark"
-              class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-medium transition-colors active:scale-95"
+              class="inline-flex items-center rounded-md border px-3 py-1.5 font-medium transition-colors active:scale-95"
               :class="[
                 isBookmarked
                   ? 'border-primary/40 bg-primary/10 text-primary'
-                  : 'border-border bg-card text-foreground hover:bg-muted'
+                  : 'border-input bg-card text-foreground hover:bg-muted'
               ]"
             >
-              {{ isBookmarked ? '★ Ditandai' : '☆ Bookmark' }}
+              {{ isBookmarked ? 'Ditandai' : 'Tandai ayat' }}
             </button>
 
             <button
               type="button"
               @click="handleMarkLastRead"
-              class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
+              class="inline-flex items-center rounded-md border border-input bg-card px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
               title="Tandai sebagai terakhir dibaca"
             >
-              🔖 Terakhir Dibaca
+              Terakhir dibaca
             </button>
           </div>
 
           <button
             type="button"
             @click="handleCopyVerse"
-            class="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
+            class="inline-flex items-center rounded-md border border-input bg-muted/40 px-3 py-1.5 font-medium text-foreground hover:bg-muted active:scale-95"
           >
-            {{ copied ? '✓ Tersalin!' : '📋 Salin Teks' }}
+            {{ copied ? 'Tersalin' : 'Salin teks' }}
           </button>
         </div>
       </div>

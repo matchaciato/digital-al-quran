@@ -1,37 +1,36 @@
 <template>
-  <div class="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
-    <nav class="flex items-center gap-2 text-xs text-muted-foreground">
-      <NuxtLink to="/topics" class="hover:text-foreground">&larr; Kembali ke Daftar Topik</NuxtLink>
-      <span>/</span>
+  <div class="page-container space-y-8">
+    <nav aria-label="Navigasi rekam jejak" class="flex items-center gap-2 text-xs text-muted-foreground">
+      <NuxtLink to="/topics" class="hover:text-foreground">Daftar topik</NuxtLink>
+      <span aria-hidden="true">&sol;</span>
       <span class="text-foreground font-medium">{{ topic?.title }}</span>
     </nav>
 
-    <div v-if="!topic" class="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center">
-      <p class="text-sm font-medium text-destructive">Topik tidak ditemukan.</p>
-      <NuxtLink to="/topics" class="mt-3 inline-block rounded bg-muted px-4 py-2 text-xs font-medium text-foreground">
-        Lihat Semua Topik
+    <div v-if="!topic" role="alert" class="rounded-lg border border-destructive/40 p-8 text-center">
+      <p class="font-medium text-destructive">Topik tidak ditemukan.</p>
+      <NuxtLink to="/topics" class="mt-4 inline-flex h-10 items-center rounded-md border border-input px-4 text-sm font-medium hover:bg-muted">
+        Lihat semua topik
       </NuxtLink>
     </div>
 
-    <header v-else class="rounded-2xl border border-border/80 bg-card p-6 sm:p-8 space-y-4 shadow-xs">
-      <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div class="space-y-1.5">
-          <span class="rounded-md bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
-            {{ topic.category }}
-          </span>
-          <h1 class="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+    <header v-else class="border-b border-border pb-6">
+      <p class="eyebrow">
+        Kajian Tematik &middot; {{ topic.category }} &middot; {{ topic.verses.length }} ayat pilihan
+      </p>
+
+      <div class="mt-3 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight sm:text-4xl">
             {{ topic.title }}
           </h1>
-          <p class="text-xs text-muted-foreground max-w-2xl leading-relaxed">
+          <p class="mt-1.5 max-w-2xl text-sm text-muted-foreground leading-relaxed">
             {{ topic.summary }}
           </p>
         </div>
 
-        <div class="text-right">
-          <span class="quran-arabic text-3xl sm:text-4xl font-normal text-foreground" dir="rtl">
-            {{ topic.arabicTitle }}
-          </span>
-        </div>
+        <p class="quran-arabic text-3xl sm:text-4xl" lang="ar" dir="rtl">
+          {{ topic.arabicTitle }}
+        </p>
       </div>
     </header>
 
@@ -39,20 +38,17 @@
       <article
         v-for="(verse, idx) in topic.verses"
         :key="verse.verseKey"
-        class="rounded-xl border p-6 sm:p-7 space-y-5 transition-all"
+        class="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-4"
         :class="[
           isPlayingVerse(verse.verseKey)
-            ? 'border-primary bg-primary/5 shadow-xs ring-1 ring-primary/30'
-            : 'border-border/70 bg-card hover:border-border'
+            ? 'border-primary ring-1 ring-primary/40'
+            : 'hover:border-border'
         ]"
       >
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-border/40 pb-3 text-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-3">
           <div class="flex items-center gap-2">
-            <span class="rounded bg-primary/10 px-2 py-0.5 font-bold text-primary">
-              #{{ idx + 1 }}
-            </span>
-            <span class="font-semibold text-foreground">
-              QS. {{ verse.surahName }} ({{ verse.verseKey }})
+            <span class="inline-flex items-center rounded-md bg-muted px-2.5 py-1 text-xs font-semibold text-foreground">
+              QS. {{ verse.surahName }} : {{ verse.verseKey }}
             </span>
           </div>
 
@@ -60,31 +56,35 @@
             <button
               type="button"
               @click="handlePlayVerse(verse)"
-              class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition-colors active:scale-95"
-              :class="[
+              class="inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors"
+              :class="
                 isPlayingVerse(verse.verseKey)
-                  ? 'bg-primary text-primary-foreground shadow-2xs'
-                  : 'border border-border text-muted-foreground hover:bg-muted hover:text-foreground'
-              ]"
-              :title="isPlayingVerse(verse.verseKey) ? 'Jeda tilawah' : 'Dengarkan tilawah ayat ini'"
+                  ? 'bg-primary text-primary-foreground'
+                  : 'border border-input text-muted-foreground hover:bg-muted hover:text-foreground'
+              "
+              :aria-label="isPlayingVerse(verse.verseKey) ? 'Jeda tilawah' : 'Putar tilawah ayat ini'"
             >
-              <span>{{ isPlayingVerse(verse.verseKey) ? '⏸ Jeda' : '▶ Putar' }}</span>
+              <Pause v-if="isPlayingVerse(verse.verseKey)" class="h-3.5 w-3.5" aria-hidden="true" />
+              <Play v-else class="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{{ isPlayingVerse(verse.verseKey) ? 'Jeda' : 'Putar' }}</span>
             </button>
 
             <button
               type="button"
               @click="handleCopyVerse(verse)"
-              class="rounded-md border border-border px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground font-medium text-xs transition-colors active:scale-95"
-              title="Salin Ayat & Terjemahan"
+              class="inline-flex h-8 items-center gap-1.5 rounded-md border border-input px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+              :aria-label="copiedVerseKey === verse.verseKey ? 'Ayat tersalin' : 'Salin ayat dan terjemahan'"
             >
-              {{ copiedVerseKey === verse.verseKey ? '✓ Tersalin' : '📋 Salin' }}
+              <Check v-if="copiedVerseKey === verse.verseKey" class="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+              <Copy v-else class="h-3.5 w-3.5" aria-hidden="true" />
+              <span>{{ copiedVerseKey === verse.verseKey ? 'Tersalin' : 'Salin' }}</span>
             </button>
 
             <NuxtLink
               :to="`/surah/${verse.surahId}#verse-${verse.verseKey}`"
-              class="rounded-md border border-border px-2.5 py-1 text-muted-foreground hover:bg-muted hover:text-foreground font-medium text-xs"
+              class="inline-flex h-8 items-center rounded-md border border-input px-2.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
             >
-              Buka di Surah &rarr;
+              Buka di surah
             </NuxtLink>
           </div>
         </div>
@@ -94,22 +94,22 @@
         </p>
 
         <div class="space-y-1 border-t border-border/40 pt-4">
-          <span class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Terjemahan</span>
+          <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Terjemahan</span>
           <p class="text-sm text-foreground/90 leading-relaxed">
             {{ verse.translationText }}
           </p>
         </div>
 
         <div v-if="verse.contextNote" class="rounded-lg border border-primary/20 bg-primary/5 p-3.5 text-xs text-foreground/90 space-y-1">
-          <span class="font-bold text-primary text-[11px] uppercase tracking-wider">Tadabbur & Konteks:</span>
+          <span class="font-bold text-primary text-xs uppercase tracking-wider">Tadabbur & Konteks:</span>
           <p>{{ verse.contextNote }}</p>
         </div>
       </article>
     </section>
   </div>
 </template>
-
 <script setup lang="ts">
+import { Play, Pause, Copy, Check } from '@lucide/vue';
 import { THEMATIC_TOPICS, type ThematicTopicVerse } from '~/constants/topics';
 import { useAudioStore } from '~/stores/useAudioStore';
 import { useAudioPlayer } from '~/composables/useAudioPlayer';
