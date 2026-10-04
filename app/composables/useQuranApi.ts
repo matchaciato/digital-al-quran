@@ -1,5 +1,12 @@
 import { QURAN_API } from '~/constants/quran';
-import { validateChapterId, validateJuzId, validatePageId, sanitizeSearchQuery } from '~/utils/quranValidation';
+import {
+  validateChapterId,
+  validateJuzId,
+  validatePageId,
+  sanitizeSearchQuery,
+  formatTafsirText,
+  validateVerseKey
+} from '~/utils/quranValidation';
 import type {
   Chapter,
   ChapterInfo,
@@ -12,6 +19,43 @@ import type {
   VerseQueryOptions,
   SearchQueryOptions
 } from '~/types/quran';
+
+const kemenagSurahCache = new Map<number, Promise<Record<number, string>>>();
+
+async function fetchKemenagSurahTafsir(chapterId: number): Promise<Record<number, string>> {
+  if (kemenagSurahCache.has(chapterId)) {
+    return kemenagSurahCache.get(chapterId)!;
+  }
+
+  const promise = (async () => {
+    try {
+      const response = await $fetch<{
+        code?: number;
+        message?: string;
+        data?: { tafsir?: Array<{ ayat: number; teks: string }> };
+      }>(`https://equran.id/api/v2/tafsir/${chapterId}`, {
+        timeout: 8000,
+        headers: { Accept: 'application/json' }
+      });
+
+      const verseMap: Record<number, string> = {};
+      if (response?.data?.tafsir && Array.isArray(response.data.tafsir)) {
+        for (const item of response.data.tafsir) {
+          if (item?.ayat && item?.teks) {
+            verseMap[item.ayat] = item.teks;
+          }
+        }
+      }
+      return verseMap;
+    } catch (err) {
+      kemenagSurahCache.delete(chapterId);
+      throw err;
+    }
+  })();
+
+  kemenagSurahCache.set(chapterId, promise);
+  return promise;
+}
 
 export function useQuranApi() {
   const config = useRuntimeConfig();
@@ -132,14 +176,145 @@ export function useQuranApi() {
 
   const getTafsirByChapter = async (tafsirId: number, chapterId: number): Promise<{ tafsirs: Tafsir[] }> => {
     const validChapterId = validateChapterId(chapterId);
-    const validTafsirId = Math.floor(Number(tafsirId));
+    const validTafsirId = Math.floor(Number(tafsirId)) || 1;
+
+    if (validTafsirId === 1 || validTafsirId === 2) {
+      try {
+        const surahMap = await fetchKemenagSurahTafsir(validChapterId);
+        const list: Tafsir[] = Object.entries(surahMap).map(([ayat, teks]) => ({
+          id: validTafsirId,
+          resource_id: validTafsirId,
+          text: formatTafsirText(teks),
+          verse_key: `${validChapterId}:${ayat}`,
+          resource_name: validTafsirId === 1 ? 'Tafsir Kemenag RI (Tahlili)' : 'Tafsir Ringkas Kemenag (Wajiz)'
+        }));
+        if (list.length > 0) {
+          return { tafsirs: list };
+        }
+      } catch (err) {
+        // Fallback to Quran.com if available
+      }
+    }
+
     return fetchApi<{ tafsirs: Tafsir[] }>(`/tafsirs/${validTafsirId}/by_chapter/${validChapterId}`);
   };
 
   const getVerseTafsir = async (tafsirId: number, verseKey: string): Promise<{ tafsir: Tafsir }> => {
-    const validTafsirId = Math.floor(Number(tafsirId));
-    const cleanKey = String(verseKey).trim();
-    return fetchApi<{ tafsir: Tafsir }>(`/tafsirs/${validTafsirId}/by_verse/${cleanKey}`);
+    const { chapterId, verseNumber } = validateVerseKey(verseKey);
+    const validTafsirId = Math.floor(Number(tafsirId)) || 1;
+    const cleanKey = `${chapterId}:${verseNumber}`;
+
+    if (validTafsirId === 1) {
+      try {
+        const surahTafsir = await fetchKemenagSurahTafsir(chapterId);
+        const text = surahTafsir[verseNumber];
+        if (text && text.trim()) {
+          return {
+            tafsir: {
+              id: 1,
+              resource_id: 1,
+              text: formatTafsirText(text),
+              verse_key: cleanKey,
+              resource_name: 'Tafsir Kemenag RI (Tahlili)'
+            }
+          };
+        }
+      } catch (err) {
+        // Fallback to secondary provider
+      }
+
+      try {
+        const gadingRes = await $fetch<{
+          data?: { tafsir?: { id?: { long?: string; short?: string } } };
+        }>(`https://api.quran.gading.dev/surah/${chapterId}/${verseNumber}`, {
+          timeout: 6000,
+          headers: { Accept: 'application/json' }
+        });
+        const fallbackText = gadingRes?.data?.tafsir?.id?.long || gadingRes?.data?.tafsir?.id?.short;
+        if (fallbackText && fallbackText.trim()) {
+          return {
+            tafsir: {
+              id: 1,
+              resource_id: 1,
+              text: formatTafsirText(fallbackText),
+              verse_key: cleanKey,
+              resource_name: 'Tafsir Kemenag RI'
+            }
+          };
+        }
+      } catch (err) {
+        // Continue to throw user-friendly error
+      }
+
+      throw new Error(`Teks Tafsir Kemenag RI tidak ditemukan untuk ayat ${cleanKey}.`);
+    }
+
+    if (validTafsirId === 2) {
+      try {
+        const gadingRes = await $fetch<{
+          data?: { tafsir?: { id?: { short?: string; long?: string } } };
+        }>(`https://api.quran.gading.dev/surah/${chapterId}/${verseNumber}`, {
+          timeout: 6000,
+          headers: { Accept: 'application/json' }
+        });
+        const shortText = gadingRes?.data?.tafsir?.id?.short;
+        if (shortText && shortText.trim()) {
+          return {
+            tafsir: {
+              id: 2,
+              resource_id: 2,
+              text: formatTafsirText(shortText),
+              verse_key: cleanKey,
+              resource_name: 'Tafsir Ringkas Kemenag (Wajiz)'
+            }
+          };
+        }
+      } catch (err) {
+        // Fallback to Tahlili below
+      }
+
+      try {
+        const surahTafsir = await fetchKemenagSurahTafsir(chapterId);
+        const text = surahTafsir[verseNumber];
+        if (text && text.trim()) {
+          return {
+            tafsir: {
+              id: 2,
+              resource_id: 2,
+              text: formatTafsirText(text),
+              verse_key: cleanKey,
+              resource_name: 'Tafsir Ringkas Kemenag (Wajiz)'
+            }
+          };
+        }
+      } catch (err) {
+        // Continue to throw user-friendly error
+      }
+
+      throw new Error(`Teks Tafsir Ringkas Kemenag tidak ditemukan untuk ayat ${cleanKey}.`);
+    }
+
+    try {
+      const response = await fetchApi<{ tafsir: any }>(`/tafsirs/${validTafsirId}/by_ayah/${cleanKey}`);
+      if (!response?.tafsir || !response.tafsir.text) {
+        throw new Error(`Teks tafsir tidak tersedia untuk ayat ${cleanKey}.`);
+      }
+
+      return {
+        tafsir: {
+          id: validTafsirId,
+          resource_id: response.tafsir.resource_id || validTafsirId,
+          text: formatTafsirText(response.tafsir.text),
+          verse_key: cleanKey,
+          resource_name: response.tafsir.resource_name || 'Tafsir'
+        }
+      };
+    } catch (err: any) {
+      if (err?.message?.includes('tidak tersedia')) {
+        throw err;
+      }
+      throw new Error(`Gagal memuat teks tafsir dari sumber (ID: ${validTafsirId}) untuk ayat ${cleanKey}.`);
+    }
   };
 
   const searchQuran = async (query: string, options: SearchQueryOptions = {}): Promise<SearchResponse> => {

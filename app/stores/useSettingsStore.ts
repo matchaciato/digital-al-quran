@@ -10,12 +10,24 @@ export const useSettingsStore = defineStore('settings', () => {
   const showLatin = useLocalStorage<boolean>('quran_show_latin', true);
   const showTranslation = useLocalStorage<boolean>('quran_show_translation', true);
   const selectedReciterId = useLocalStorage<number>('quran_reciter_id', QURAN_API.DEFAULT_RECITER_ID);
-  const selectedTafsirId = useLocalStorage<number>('quran_tafsir_id', 168);
+  const selectedTafsirId = useLocalStorage<number>('quran_tafsir_id', 1);
   const readingMode = useLocalStorage<ReadingMode>('quran_reading_mode', 'verse');
   const isDarkMode = useLocalStorage<boolean>('quran_dark_mode', false);
   const isSettingsOpen = ref<boolean>(false);
 
   if (import.meta.client) {
+    try {
+      const isMigrated = localStorage.getItem('quran_tafsir_v2_migrated');
+      if (!isMigrated) {
+        if (selectedTafsirId.value === 168 || selectedTafsirId.value === 164 || selectedTafsirId.value === 171 || selectedTafsirId.value === 166) {
+          selectedTafsirId.value = 1;
+        }
+        localStorage.setItem('quran_tafsir_v2_migrated', '1');
+      }
+    } catch {
+      // Ignore localStorage access restrictions in private browsing
+    }
+
     watch(isDarkMode, (dark) => {
       if (dark) {
         document.documentElement.classList.add('dark');
