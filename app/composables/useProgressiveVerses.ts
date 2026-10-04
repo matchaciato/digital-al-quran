@@ -1,4 +1,4 @@
-import type { Ref, ComputedRef } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick, getCurrentInstance, type Ref, type ComputedRef } from 'vue';
 import type { Verse } from '~/types/quran';
 import { useAudioStore } from '~/stores/useAudioStore';
 
@@ -116,17 +116,19 @@ export function useProgressiveVerses(
     nextTick(() => setupObserver());
   }, { immediate: true });
 
-  onMounted(() => {
-    checkHashTarget();
-    setupObserver();
-  });
+  if (getCurrentInstance()) {
+    onMounted(() => {
+      checkHashTarget();
+      setupObserver();
+    });
 
-  onUnmounted(() => {
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
-  });
+    onUnmounted(() => {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+    });
+  }
 
   return {
     visibleVerses,
