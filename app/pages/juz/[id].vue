@@ -61,7 +61,7 @@
 
       <section v-if="settings.readingMode === 'verse'" class="space-y-5">
         <QuranVerseItem
-          v-for="verse in data.verses"
+          v-for="verse in visibleVerses"
           :key="verse.id"
           :verse="verse"
           :surah-name="getSurahName(verse.verse_key, `Juz ${juzId}`)"
@@ -69,6 +69,20 @@
           @open-tafsir="handleOpenTafsir"
           @inspect-word="handleInspectWord"
         />
+
+        <div v-if="!isAllLoaded" class="py-6 text-center space-y-3">
+          <div ref="sentinelRef" class="h-4 w-full" aria-hidden="true" />
+          <div class="inline-flex items-center gap-3 rounded-full border border-border/70 bg-card px-4 py-2 text-xs text-muted-foreground shadow-xs">
+            <span>Menampilkan {{ visibleCount }} dari {{ totalCount }} ayat</span>
+            <button
+              type="button"
+              @click="loadAll"
+              class="font-semibold text-primary hover:underline cursor-pointer"
+            >
+              Muat Semua Sekaligus
+            </button>
+          </div>
+        </div>
       </section>
 
       <section v-else-if="settings.readingMode === 'mushaf'">
@@ -122,7 +136,6 @@ import type { Word } from '~/types/quran';
 const route = useRoute();
 const rawJuzId = Number(route.params.id);
 
-// Fail-fast boundary validation (Defensive Programming)
 if (isNaN(rawJuzId) || rawJuzId < 1 || rawJuzId > 30) {
   throw createError({
     statusCode: 404,
@@ -156,6 +169,16 @@ const { data, pending, error } = await useAsyncData(
     watch: [() => settings.selectedReciterId]
   }
 );
+
+const allVerses = computed(() => data.value?.verses || []);
+const {
+  visibleVerses,
+  visibleCount,
+  totalCount,
+  isAllLoaded,
+  sentinelRef,
+  loadAll
+} = useProgressiveVerses(allVerses, { initialBatch: 25, batchStep: 25 });
 
 watch(() => data.value?.verses, (newVerses) => {
   if (newVerses && newVerses.length > 0) {

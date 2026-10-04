@@ -132,7 +132,6 @@
     line-height: 1.6;
   }
 
-  /* Form controls must inherit the page font, never the browser default. */
   button, input, select, textarea {
     font-family: inherit;
   }
@@ -152,7 +151,6 @@
     @apply cursor-not-allowed;
   }
 
-  /* One consistent, clearly visible keyboard focus indicator (WCAG 2.4.7). */
   :focus-visible {
     outline: 2px solid var(--ring);
     outline-offset: 2px;
@@ -181,7 +179,6 @@
   }
 }
 
-/* Visible only when focused: lets keyboard users bypass the header. */
 .skip-link {
   position: absolute;
   left: 1rem;
@@ -200,7 +197,6 @@
   top: 1rem;
 }
 
-/* Shared page rhythm so every screen uses the same width and spacing. */
 .page-container {
   margin-inline: auto;
   width: 100%;
@@ -241,4 +237,18 @@
   align-items: center;
   justify-content: center;
   user-select: none;
+}
+
+.verse-card-optimized {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

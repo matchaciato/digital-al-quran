@@ -21,6 +21,8 @@
       :is-open="shortcuts.isCommandPaletteOpen.value"
       @close="shortcuts.closeCommandPalette()"
     />
+
+    <CommonPwaInstallPrompt />
   </div>
 </template>
 

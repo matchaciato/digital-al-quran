@@ -21,7 +21,10 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'preconnect', href: 'https://api.quran.com' },
+        { rel: 'preconnect', href: 'https://audio.qurancdn.com', crossorigin: '' },
+        { rel: 'preconnect', href: 'https://equran.id' }
       ]
     }
   },
@@ -44,28 +47,80 @@ export default defineNuxtConfig({
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
-      name: 'Digital Al-Qur\'an Platform',
+      id: '/?source=pwa',
+      name: 'Digital Al-Qur\'an — Editorial Typography & Linguistic Anatomy',
       short_name: 'Al-Qur\'an',
-      description: 'Platform Al-Qur\'an Digital Editorial Berkelas Dunia',
+      description: 'Platform Al-Qur\'an Digital modern berkelas dunia, cepat, hemat memori & kuota, dengan audio murottal 30 juz, tafsir lengkap Kemenag RI, dan kajian anatomi kata.',
       theme_color: '#1B4D3E',
       background_color: '#FAF8F5',
       display: 'standalone',
-      orientation: 'portrait',
+      display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
+      orientation: 'any',
+      lang: 'id',
+      dir: 'ltr',
+      categories: ['education', 'books', 'lifestyle', 'utilities'],
+      start_url: '/?source=pwa',
+      scope: '/',
       icons: [
         {
           src: '/pwa-192x192.png',
           sizes: '192x192',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'maskable'
         },
         {
           src: '/pwa-512x512.png',
           sizes: '512x512',
-          type: 'image/png'
+          type: 'image/png',
+          purpose: 'any'
+        },
+        {
+          src: '/pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable'
+        }
+      ],
+      shortcuts: [
+        {
+          name: 'Surah Al-Fatihah',
+          short_name: 'Al-Fatihah',
+          description: 'Buka Surah Al-Fatihah (Pembukaan)',
+          url: '/surah/1',
+          icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
+        },
+        {
+          name: 'Juz \'Amma (Juz 30)',
+          short_name: 'Juz 30',
+          description: 'Buka kumpulan surah pendek Juz 30',
+          url: '/juz/30',
+          icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
+        },
+        {
+          name: 'Pencarian Ayat',
+          short_name: 'Cari Ayat',
+          description: 'Cari ayat, kata, atau terjemahan Al-Qur\'an',
+          url: '/search',
+          icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
+        },
+        {
+          name: 'Bookmark & Terakhir Dibaca',
+          short_name: 'Bookmark',
+          description: 'Lihat daftar ayat tersimpan dan penanda baca',
+          url: '/bookmark',
+          icons: [{ src: '/pwa-192x192.png', sizes: '192x192' }]
         }
       ]
     },
     workbox: {
-      navigateFallback: '/',
+      navigateFallback: '/offline.html',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico,woff2}'],
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/api\.quran\.com\/api\/v4\/.*/i,
@@ -82,12 +137,40 @@ export default defineNuxtConfig({
           }
         },
         {
+          urlPattern: /^https:\/\/equran\.id\/api\/v2\/.*/i,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'quran-equran-cache',
+            expiration: {
+              maxEntries: 200,
+              maxAgeSeconds: 60 * 60 * 24 * 30
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /^https:\/\/api\.quran\.gading\.dev\/.*/i,
+          handler: 'StaleWhileRevalidate',
+          options: {
+            cacheName: 'quran-gading-cache',
+            expiration: {
+              maxEntries: 300,
+              maxAgeSeconds: 60 * 60 * 24 * 30
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
           urlPattern: /^https:\/\/audio\.qurancdn\.com\/.*/i,
           handler: 'CacheFirst',
           options: {
             cacheName: 'quran-audio-cache',
             expiration: {
-              maxEntries: 100,
+              maxEntries: 150,
               maxAgeSeconds: 60 * 60 * 24 * 30
             },
             cacheableResponse: {
@@ -101,8 +184,22 @@ export default defineNuxtConfig({
           options: {
             cacheName: 'quran-verses-audio-cache',
             expiration: {
-              maxEntries: 200,
+              maxEntries: 300,
               maxAgeSeconds: 60 * 60 * 24 * 30
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'google-fonts-cache',
+            expiration: {
+              maxEntries: 30,
+              maxAgeSeconds: 60 * 60 * 24 * 365
             },
             cacheableResponse: {
               statuses: [0, 200]
@@ -117,6 +214,20 @@ export default defineNuxtConfig({
             expiration: {
               maxEntries: 30,
               maxAgeSeconds: 60 * 60 * 24 * 365
+            },
+            cacheableResponse: {
+              statuses: [0, 200]
+            }
+          }
+        },
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)$/i,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'quran-static-images-cache',
+            expiration: {
+              maxEntries: 60,
+              maxAgeSeconds: 60 * 60 * 24 * 60
             },
             cacheableResponse: {
               statuses: [0, 200]

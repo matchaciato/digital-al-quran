@@ -2,7 +2,7 @@
   <article
     :id="`verse-${verse.verse_key}`"
     :data-active="isActive"
-    class="group relative rounded-xl border p-5 sm:p-7 transition-all duration-200"
+    class="group relative rounded-xl border p-5 sm:p-7 transition-all duration-200 verse-card-optimized"
     :class="[
       isActive
         ? 'border-primary bg-primary/5 shadow-sm'
@@ -133,6 +133,7 @@
     </section>
 
     <QuranExportAyatCardExportModal
+      v-if="isExportCardOpen"
       :is-open="isExportCardOpen"
       :verse="verse"
       :surah-name="surahName"
@@ -140,6 +141,7 @@
     />
 
     <QuranVerseQuickTadabburModal
+      v-if="isQuickTadabburOpen"
       :is-open="isQuickTadabburOpen"
       :verse-key="verse.verse_key"
       :surah-name="surahName"
